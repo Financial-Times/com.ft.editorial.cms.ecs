@@ -132,6 +132,8 @@ Resources:
          pip install --upgrade boto
          # Ready to run bootstrap.sh
          bash ./bootstrap.sh -s ${Sudo} -e ${TagEnvironment}
+         # Finally upgrade installed packages
+         yum upgrade -y
   EcsInstanceAsg:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
