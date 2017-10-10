@@ -52,12 +52,12 @@ Parameters:
     Description: Sudo Group to be applied by default
     Type: String
     Default: eng
-  SecurityGroupId:
-    Type: String
+  SecurityGroupIds:
+    Type: CommaDelimitedList
     Description: >
-      Optional - Specifies the Security Group Id of an existing Security
-      Group. Leave blank to have a new Security Group created
-    Default: sg-15be656d
+      Comma separated values specifying the Security Group Ids of an existing Security
+      Groups. Leave blank to have a new Security Group created
+    Default: sg-15be656d,sg-79ba6101
   VpcCidr:
     Type: String
     Description: Optional - Specifies the CIDR Block of VPC
@@ -104,8 +104,7 @@ Resources:
       AssociatePublicIpAddress: true
       IamInstanceProfile: !Ref IamRoleInstanceProfile
       KeyName: !Ref KeyName
-      SecurityGroups:
-        - !Ref SecurityGroupId
+      SecurityGroups: !Ref SecurityGroupIds
       BlockDeviceMappings:
         - DeviceName: "/dev/xvda"
           Ebs:
@@ -121,7 +120,17 @@ Resources:
          easy_install pip
          pip install --upgrade awscli
          aws configure set default.region ${AWS::Region}
-         /usr/bin/aws s3 cp s3://ft-ce-repository/amazon-ftbase/releases/bootstrap.sh .
+         # HACK: Install package that provides setfacl
+         yum -y install acl
+         # Get bootstrap.sh
+         aws s3 cp s3://ft-ce-repository/amazon-ftbase/releases/bootstrap.sh .
+         # HACK: get the latest Ansible version instead of old v2.1.3
+         sed -i 's/ansible==[0-9]*.[0-9]*.[0-9]*/ansible/g' bootstrap.sh
+         # HACK: bootstrap.sh assumes aws executable living in /usr/bin but it's not, let's symlink it
+         ln -s $(which aws) /usr/bin/aws
+         # HACK: bootstrap.sh expects boto package to be installed, let's install it
+         pip install --upgrade boto
+         # Ready to run bootstrap.sh
          bash ./bootstrap.sh -s ${Sudo} -e ${TagEnvironment}
   EcsInstanceAsg:
     Type: AWS::AutoScaling::AutoScalingGroup
