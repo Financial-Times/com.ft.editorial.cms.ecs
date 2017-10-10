@@ -1,0 +1,152 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  AWS CloudFormation template to create a new VPC
+  or use an existing VPC for ECS deployment
+  in Create Cluster Wizard. Requires exactly 1
+  Instance Types for a Spot Request.
+Parameters:
+  EcsClusterName:
+    Type: String
+    Description: >
+      Specifies the ECS Cluster Name with which the resources would be
+      associated
+    Default: default
+  EcsAmiId:
+    Type: String
+    Description: >
+      Specifies the AMI ID for your container instances.
+      Default: amzn-ami-2017.03.g-amazon-ecs-optimized (ami-13f7226a)
+    Default: ami-13f7226a
+  EcsInstanceType:
+    Type: CommaDelimitedList
+    Description: >
+      Specifies the EC2 instance type for your container instances.
+      Defaults to t2.small
+    Default: t2.small
+    ConstraintDescription: must be a valid EC2 instance type.
+  KeyName:
+    Type: String
+    Description: >
+      Optional - Specifies the name of an existing Amazon EC2 key pair
+      to enable SSH access to the EC2 instances in your cluster.
+    Default: team-cms-ec2-ft-tech-editorial-prod
+  VpcId:
+    Type: String
+    Description: >
+      Optional - Specifies the ID of an existing VPC in which to launch
+      your container instances. If you specify a VPC ID, you must specify a list of
+      existing subnets in that VPC. If you do not specify a VPC ID, a new VPC is created
+      with atleast 1 subnet.
+    Default: vpc-729f2815
+    AllowedPattern: "^(?:vpc-[0-9a-f]{8}|)$"
+    ConstraintDescription: >
+      VPC Id must begin with 'vpc-' or leave blank to have a
+      new VPC created
+  SubnetIds:
+    Type: CommaDelimitedList
+    Description: >
+      Optional - Specifies the Comma separated list of existing VPC Subnet
+      Ids where ECS instances will run
+    Default: subnet-cbbc0d82,subnet-3f3fcb64,subnet-a467cfc3
+  Sudo:
+    Description: Sudo Group to be applied by default
+    Type: String
+    Default: eng
+  SecurityGroupId:
+    Type: String
+    Description: >
+      Optional - Specifies the Security Group Id of an existing Security
+      Group. Leave blank to have a new Security Group created
+    Default: sg-15be656d
+  VpcCidr:
+    Type: String
+    Description: Optional - Specifies the CIDR Block of VPC
+    Default: 10.172.136.0/21
+  SubnetCidr1:
+    Type: String
+    Description: Specifies the CIDR Block of Subnet 1
+    Default: 10.172.139.0/24
+  SubnetCidr2:
+    Type: String
+    Description: Specifies the CIDR Block of Subnet 2
+    Default: 10.172.140.0/24
+  SubnetCidr3:
+    Type: String
+    Description: Specifies the CIDR Block of Subnet 3
+    Default: 10.172.141.0/24
+  AsgMaxSize:
+    Type: Number
+    Description: >
+      Specifies the number of instances to launch and register to the cluster.
+      Defaults to 3.
+    Default: '3'
+  IamRoleInstanceProfile:
+    Type: String
+    Description: >
+      Specifies the Name or the Amazon Resource Name (ARN) of the instance
+      profile associated with the IAM role for the instance
+    Default: FT-Linux-Role
+  TagEnvironment:
+    Description: Tag detail for the Environment
+    Type: String
+    Default: d
+    AllowedValues:
+      - 'd'
+      - 't'
+      - 'p'
+      - 'int'
+Resources:
+  EcsInstanceLc:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref EcsAmiId
+      InstanceType: !Select [ 0, !Ref EcsInstanceType ]
+      AssociatePublicIpAddress: true
+      IamInstanceProfile: !Ref IamRoleInstanceProfile
+      KeyName: !Ref KeyName
+      SecurityGroups:
+        - !Ref SecurityGroupId
+      BlockDeviceMappings:
+        - DeviceName: "/dev/xvda"
+          Ebs:
+            VolumeType: "gp2"
+            DeleteOnTermination: "true"
+            VolumeSize: "10"
+      UserData:
+        Fn::Base64: !Sub |
+         #!/bin/bash
+         echo ECS_CLUSTER=${EcsClusterName} >> /etc/ecs/ecs.config
+         export PATH=/usr/local/bin:$PATH
+         yum -y install jq
+         easy_install pip
+         pip install --upgrade awscli
+         aws configure set default.region ${AWS::Region}
+         /usr/bin/aws s3 cp s3://ft-ce-repository/amazon-ftbase/releases/bootstrap.sh .
+         bash ./bootstrap.sh -s ${Sudo} -e ${TagEnvironment}
+  EcsInstanceAsg:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier: !Ref SubnetIds
+      LaunchConfigurationName: !Ref EcsInstanceLc
+      MinSize: '0'
+      MaxSize: !Ref AsgMaxSize
+      DesiredCapacity: !Ref AsgMaxSize
+      Tags:
+        -
+          Key: Name
+          Value: !Sub "ECS Instance - ${AWS::StackName}"
+          PropagateAtLaunch: 'true'
+        -
+          Key: Description
+          Value: "This instance is the part of the Auto Scaling group which was created through ECS Console"
+          PropagateAtLaunch: 'true'
+Outputs:
+  EcsInstanceAsgName:
+    Description: Auto Scaling Group Name for ECS Instances
+    Value: !Ref EcsInstanceAsg
+  UsedByECSCreateCluster:
+    Description: Flag used by EC2 Container Service Create Cluster Wizard
+    Value: 'true'
+  TemplateVersion:
+    Description: The version of the template used by Create Cluster Wizard
+    Value: '1.0.0'
