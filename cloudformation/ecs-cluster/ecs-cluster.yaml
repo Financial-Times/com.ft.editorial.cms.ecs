@@ -79,13 +79,17 @@ Parameters:
     Description: >
       Specifies the number of instances to launch and register to the cluster.
       Defaults to 3.
-    Default: '3'
+    Default: '1'
   IamRoleInstanceProfile:
     Type: String
     Description: >
       Specifies the Name or the Amazon Resource Name (ARN) of the instance
       profile associated with the IAM role for the instance
     Default: FT-Linux-Role
+  TagDescription:
+    Description: Tag detail for the Description
+    Type: String
+    Default: Editorial Container Service cluster
   TagEnvironment:
     Description: Tag detail for the Environment
     Type: String
@@ -95,7 +99,21 @@ Parameters:
       - 't'
       - 'p'
       - 'int'
+  TagTeamDL:
+    Description: Tag detail for the TeamDL
+    ConstraintDescription: There must be a valid email address for the TeamDL Topic
+    Type: String
+    AllowedPattern: ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+    Default: team.cms@ft.com
+  TagSystemCode:
+      Description: SystemCode
+      Type: String
+      Default: meth-swing
 Resources:
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub "${AWS::StackName}"
   EcsInstanceLc:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
@@ -149,8 +167,17 @@ Resources:
           PropagateAtLaunch: 'true'
         -
           Key: Description
-          Value: "This instance is the part of the Auto Scaling group which was created through ECS Console"
           PropagateAtLaunch: 'true'
+          Value:
+            Ref: TagDescription
+        - Key: teamDL
+          PropagateAtLaunch: 'true'
+          Value:
+            Ref: TagTeamDL
+        - Key: systemCode
+          PropagateAtLaunch: 'true'
+          Value:
+            Ref: TagSystemCode
 Outputs:
   EcsInstanceAsgName:
     Description: Auto Scaling Group Name for ECS Instances
