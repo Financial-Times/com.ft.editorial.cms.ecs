@@ -85,7 +85,7 @@ Parameters:
     Description: >
       Specifies the Name or the Amazon Resource Name (ARN) of the instance
       profile associated with the IAM role for the instance
-    Default: FT-Linux-Role
+    Default: arn:aws:iam::307921801440:instance-profile/aws-composer-custom-ecs-global-FTApplicationRoleForECSInstanceRole-ECSInstanceProfile-1Q7D43KYQQN1A
   TagDescription:
     Description: Tag detail for the Description
     Type: String
@@ -132,7 +132,7 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
          #!/bin/bash
-         echo ECS_CLUSTER=${EcsClusterName} >> /etc/ecs/ecs.config
+         echo ECS_CLUSTER=${AWS::StackName} >> /etc/ecs/ecs.config
          export PATH=/usr/local/bin:$PATH
          yum -y install jq
          easy_install pip
