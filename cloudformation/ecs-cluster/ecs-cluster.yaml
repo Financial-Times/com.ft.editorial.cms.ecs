@@ -152,6 +152,7 @@ Resources:
          yum upgrade -y
   EcsInstanceAsg:
     Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: ECSCluster
     Properties:
       VPCZoneIdentifier: !Ref SubnetIds
       LaunchConfigurationName: !Ref EcsInstanceLc
