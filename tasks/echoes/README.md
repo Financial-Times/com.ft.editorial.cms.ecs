@@ -23,6 +23,13 @@ sudo docker tag echoes:latest 307921801440.dkr.ecr.eu-west-1.amazonaws.com/echoe
 sudo docker push 307921801440.dkr.ecr.eu-west-1.amazonaws.com/echoes:latest
 ```
 
+## Pulling image from ECR
+
+```
+sudo $(aws ecr get-login --no-include-email --region eu-west-1)
+sudo docker pull 307921801440.dkr.ecr.eu-west-1.amazonaws.com/echoes:latest
+```
+
 # General information
 
 Application written by [Jussi Heinonen](mailto:jussi.heinonen@ft.com)
