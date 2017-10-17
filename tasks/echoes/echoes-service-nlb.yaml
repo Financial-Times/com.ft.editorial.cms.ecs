@@ -52,11 +52,12 @@ Resources:
           MemoryReservation: '64'
           PortMappings:
             - ContainerPort: 8080
+              HostPort: 0
   EcsService:
     Type: AWS::ECS::Service
     DependsOn: NetworkLoadBalancer
     Properties:
-      ServiceName: echoes
+      ServiceName: !Sub "echoes-${AWS::StackName}"
       Cluster: !Ref EcsClusterName
       DesiredCount: 3
       TaskDefinition: !Ref EcsTaskDefinition
@@ -70,14 +71,14 @@ Resources:
   NetworkLoadBalancer:
    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
    Properties:
-     Name: !Sub "echoes-nlb-${EcsClusterName}"
+     Name: !Sub "NLB-${AWS::StackName}"
      Type: network
      Scheme: internet-facing # or internal
      Subnets: !Ref SubnetIds
   TargetGroup:
    Type: AWS::ElasticLoadBalancingV2::TargetGroup
    Properties:
-     Name: !Sub "TG-echoes-${EcsClusterName}"
+     Name: !Sub "TG-${AWS::StackName}"
      Port: 8080
      Protocol: TCP
      VpcId: !Ref VpcId

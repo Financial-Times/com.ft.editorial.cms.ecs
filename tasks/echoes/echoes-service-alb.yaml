@@ -1,0 +1,98 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  AWS CloudFormation template for echoes service
+Parameters:
+  Certificate:
+    Type: String
+    Description: >
+      Specifies SSL Certificate used on Load Balancer
+    Default: arn:aws:acm:eu-west-1:307921801440:certificate/00b98d3d-2c61-4a52-a28c-5bbb79c04011
+  EcsClusterName:
+    Type: String
+    Description: >
+      Specifies the ECS Cluster Name with which the resources would be
+      associated
+    #Default: default
+  IamRole:
+    Type: String
+    Description: >
+      Specifies the Name or the Amazon Resource Name (ARN) of the instance
+      profile associated with the IAM role for the instance
+    Default: FTApplicationRoleForECSServiceRole
+  SecurityGroupIds:
+    Type: CommaDelimitedList
+    Description: Public subnets to attache NLB to
+    Default: sg-15be656d,sg-79ba6101
+  SubnetIds:
+    Type: CommaDelimitedList
+    Description: Public subnets to attache NLB to
+    Default: subnet-cbbc0d82,subnet-3f3fcb64,subnet-a467cfc3
+  TaskDefintionImage:
+    Type: String
+    Description: Image name for Task Definition
+    Default: 307921801440.dkr.ecr.eu-west-1.amazonaws.com/echoes:latest
+  VpcId:
+    Type: String
+    Description: >
+      Optional - Specifies the ID of an existing VPC in which to launch
+      your container instances.
+    Default: vpc-729f2815
+    AllowedPattern: "^(?:vpc-[0-9a-f]{8}|)$"
+    ConstraintDescription: >
+      VPC Id must begin with 'vpc-'
+Resources:
+  EcsTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+        - Name: echoes
+          Image: !Ref TaskDefintionImage
+          Cpu: '10'
+          Essential: 'true'
+          MemoryReservation: '64'
+          PortMappings:
+            - ContainerPort: 8080
+              HostPort: 0
+  EcsService:
+    Type: AWS::ECS::Service
+    DependsOn: NetworkLoadBalancer
+    Properties:
+      ServiceName: echoes
+      Cluster: !Ref EcsClusterName
+      DesiredCount: 3
+      TaskDefinition: !Ref EcsTaskDefinition
+      LoadBalancers:
+      - TargetGroupArn:
+          Ref: TargetGroup
+        ContainerPort: 8080
+        ContainerName: echoes
+      Role: !Ref IamRole
+
+  ApplicationLoadBalancer:
+   Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+   Properties:
+     Name: !Sub "NLB-${AWS::StackName}"
+     Type: application
+     Scheme: internet-facing # or internal
+     Subnets: !Ref SubnetIds
+     SecurityGroups: !Ref SecurityGroupIds
+  TargetGroup:
+   Type: AWS::ElasticLoadBalancingV2::TargetGroup
+   Properties:
+     Name: !Sub "TG-${AWS::StackName}"
+     Port: 8080
+     Protocol: HTTP
+     #Protocol: TCP
+     VpcId: !Ref VpcId
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: TargetGroup
+      LoadBalancerArn:
+        Ref: ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+      #Protocol: TCP
