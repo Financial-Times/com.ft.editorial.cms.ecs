@@ -84,7 +84,7 @@ Resources:
      Protocol: HTTP
      #Protocol: TCP
      VpcId: !Ref VpcId
-  Listener:
+  ListenerHTTP:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       DefaultActions:
@@ -95,4 +95,16 @@ Resources:
         Ref: ApplicationLoadBalancer
       Port: 80
       Protocol: HTTP
-      #Protocol: TCP
+  ListenerHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: TargetGroup
+      LoadBalancerArn:
+        Ref: ApplicationLoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      #Certificates:
+      #  - CertificateArn: arn:aws:iam::027104099916:server-certificate/wildcard.in.ft.com
