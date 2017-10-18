@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
-  AWS CloudFormation template to create a new ECS
-  cluster and registers EC2 instances in it
+  Editorial Container Cluster
 Parameters:
   EcsClusterName:
     Type: String

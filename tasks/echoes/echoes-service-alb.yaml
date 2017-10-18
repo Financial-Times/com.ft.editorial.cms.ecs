@@ -30,7 +30,11 @@ Parameters:
   TaskDefintionImage:
     Type: String
     Description: Image name for Task Definition
-    Default: 307921801440.dkr.ecr.eu-west-1.amazonaws.com/echoes:latest
+    Default: 307921801440.dkr.ecr.eu-west-1.amazonaws.com/echoes
+  TaskDefintionImageTag:
+    Type: String
+    Description: Image name for Task Definition
+    Default: latest
   VpcId:
     Type: String
     Description: >
@@ -46,7 +50,7 @@ Resources:
     Properties:
       ContainerDefinitions:
         - Name: echoes
-          Image: !Ref TaskDefintionImage
+          Image: !Sub "${TaskDefintionImage}:${TaskDefintionImageTag}"
           Cpu: '10'
           Essential: 'true'
           MemoryReservation: '64'
@@ -54,12 +58,15 @@ Resources:
             - ContainerPort: 8080
   EcsService:
     Type: AWS::ECS::Service
-    DependsOn: NetworkLoadBalancer
+    DependsOn: Listener
     Properties:
       ServiceName: echoes
       Cluster: !Ref EcsClusterName
       DesiredCount: 3
       TaskDefinition: !Ref EcsTaskDefinition
+      DeploymentConfiguration:
+        - MaximumPercent: 200
+          MinimumHealthyPercent: 34
       LoadBalancers:
       - TargetGroupArn:
           Ref: TargetGroup
@@ -81,9 +88,8 @@ Resources:
      Name: !Sub "TG-${AWS::StackName}"
      Port: 8080
      Protocol: HTTP
-     #Protocol: TCP
      VpcId: !Ref VpcId
-  ListenerHTTP:
+  Listener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       DefaultActions:
@@ -105,5 +111,9 @@ Resources:
         Ref: ApplicationLoadBalancer
       Port: 443
       Protocol: HTTPS
-      #Certificates:
-      #  - CertificateArn: arn:aws:iam::027104099916:server-certificate/wildcard.in.ft.com
+      Certificates:
+        - CertificateArn: arn:aws:acm:eu-west-1:307921801440:certificate/00b98d3d-2c61-4a52-a28c-5bbb79c04011
+Outputs:
+  LoadBalancerDNSName:
+    Description: Load Balancer DNS Name
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
