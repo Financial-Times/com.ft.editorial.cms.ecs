@@ -52,7 +52,6 @@ Resources:
           MemoryReservation: '64'
           PortMappings:
             - ContainerPort: 8080
-              HostPort: 0
   EcsService:
     Type: AWS::ECS::Service
     DependsOn: NetworkLoadBalancer
