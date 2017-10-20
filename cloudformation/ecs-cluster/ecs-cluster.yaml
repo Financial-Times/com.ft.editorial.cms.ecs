@@ -136,7 +136,7 @@ Resources:
          pip install --upgrade awscli
          aws configure set default.region ${AWS::Region}
          # HACK: Install package that provides setfacl
-         yum -y install acl
+         yum -y install acl nmap-ncat
          # Get bootstrap.sh
          aws s3 cp s3://ft-ce-repository/amazon-ftbase/releases/bootstrap.sh .
          # HACK: get the latest Ansible version instead of old v2.1.3
