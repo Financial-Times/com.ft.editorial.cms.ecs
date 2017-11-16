@@ -19,7 +19,7 @@ install_aws_cli() {
 }
 
 # Check whether to install aws clis
-which aws >/dev/null || install_aws_cli
+install_aws_cli
 
 echo "Set AWS region"
 aws configure set default.region ${AWS_REGION}
