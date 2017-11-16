@@ -14,13 +14,14 @@ AWS_ACCOUNT_ID=${3:-"307921801440"}
 REGION=${4:-"eu-west-1"}
 
 install_aws_cli() {
-  echo "Update pip & awscli"
   pip install --upgrade pip
   pip install --upgrade awscli
 }
 
 # Check whether to install aws clis
-which aws >/dev/null || install_aws_cli
+#which aws >/dev/null || install_aws_cli
+echo "Update pip & awscli"
+install_aws_cli
 
 echo "Set AWS region"
 aws configure set default.region ${AWS_REGION}
