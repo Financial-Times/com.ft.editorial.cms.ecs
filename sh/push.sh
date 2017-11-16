@@ -8,7 +8,7 @@
 #
 # USAGE: ./push.sh [image_name] [image_version] [aws_account_id] [region]
 
-IMAGE_NAME=${1:-${CIRCLE_PROJECT_REPONAME}
+IMAGE_NAME=${1:-${CIRCLE_PROJECT_REPONAME}}
 IMAGE_VERSION=${2:-${CIRCLE_BUILD_NUM}}
 AWS_ACCOUNT_ID=${3:-"307921801440"}
 REGION=${4:-"eu-west-1"}
