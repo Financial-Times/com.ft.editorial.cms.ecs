@@ -5,6 +5,7 @@
 # Script is intended to be run by CircleCI. It references variables CIRCLE_PROJECT_REPONAME and  CIRCLE_BUILD_NUM
 # unless passed in as command line parameter
 #
+# Script is based on https://github.com/circleci/go-ecs-ecr/blob/master/deploy.sh
 #
 # USAGE: deploy.sh <ecs_cluster> <ecs_service> [image_name] [image_version] [aws_account_id] [region]
 #
