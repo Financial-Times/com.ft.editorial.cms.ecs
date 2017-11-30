@@ -46,7 +46,7 @@ Resources:
   ApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-     Name: !Sub "ALB-${AWS::StackName}"
+     Name: !Sub "${AWS::StackName}"
      Type: application
      Scheme: internal # or internet-facing
      Subnets: !Ref SubnetIds
@@ -69,7 +69,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
      Name: !Sub "TG-${AWS::StackName}-mis"
-     Port: 8083
+     Port: 80
      Protocol: HTTP
      HealthCheckProtocol: HTTP
      Matcher:
@@ -80,7 +80,7 @@ Resources:
      - Key: stickiness.enabled
        Value: true
      VpcId: !Ref VpcId
-  ListenerSinglets:
+  ListenerHTTP:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       DefaultActions:
@@ -89,7 +89,7 @@ Resources:
           Ref: TargetGroupMIS
       LoadBalancerArn:
         Ref: ApplicationLoadBalancer
-      Port: 8083
+      Port: 80
       Protocol: HTTP
   ListenerRuleMIS:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
@@ -103,8 +103,8 @@ Resources:
         Values:
         - "/mis/*"
       ListenerArn:
-        Ref: ListenerSinglets
-      Priority: 1
+        Ref: ListenerHTTP
+      Priority: 10
 Outputs:
   LoadBalancerDNSName:
     Description: Load Balancer DNS Name
