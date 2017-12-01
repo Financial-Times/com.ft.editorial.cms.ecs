@@ -41,7 +41,7 @@ aws ecr create-repository --repository-name ${ARGS[--image_name]}
 echo "Tag image"
 docker tag ${ARGS[--image_name]}:${IMAGE_VERSION} \
   ${ARGS[--ecr_endpoint]}/${ARGS[--image_name]}:${ARGS[--image_version]}
-docker tag ${ECR_ENDPOINT}/${ARGS[--image_name]}:${ARGS[--image_version]} \
+docker tag ${ARGS[--ecr_endpoint]}/${ARGS[--image_name]}:${ARGS[--image_version]} \
   ${ARGS[--ecr_endpoint]}/${ARGS[--image_name]}:latest
 
 echo "Pushing container to ECR"
