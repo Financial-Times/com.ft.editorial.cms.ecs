@@ -71,6 +71,7 @@ Resources:
      Name: !Sub "TG-${AWS::StackName}-mis"
      Port: 80
      Protocol: HTTP
+     HealthCheckPath: /mis/actions/home
      HealthCheckProtocol: HTTP
      Matcher:
        HttpCode: '200'
