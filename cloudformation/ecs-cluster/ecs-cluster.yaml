@@ -168,6 +168,11 @@ Resources:
           PropagateAtLaunch: 'true'
           Value:
             Ref: TagDescription
+        -
+          Key: environment
+          PropagateAtLaunch: 'true'
+          Value:
+            Ref: TagEnvironment            
         - Key: teamDL
           PropagateAtLaunch: 'true'
           Value:
