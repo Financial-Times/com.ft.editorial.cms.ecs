@@ -22,7 +22,7 @@ Parameters:
   TagDescription:
     Description: Tag detail for the Description
     Type: String
-    Default: Editorial Container Service cluster
+    Default: Internal ALB for Methode Servlets
   TagEnvironment:
     Description: Tag detail for the Environment
     Type: String
@@ -69,7 +69,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
      Name: !Sub "TG-${AWS::StackName}-mis"
-     Port: 80
+     Port: 8080
      Protocol: HTTP
      HealthCheckPath: /mis/actions/home
      HealthCheckProtocol: HTTP
