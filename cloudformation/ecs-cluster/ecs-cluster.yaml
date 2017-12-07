@@ -149,6 +149,9 @@ Resources:
          bash ./bootstrap.sh -s ${Sudo} -e ${TagEnvironment}
          # Finally upgrade installed packages
          yum upgrade -y
+         # CMS ECS customisation
+         aws s3 cp s3://cms-tech-s3/ECS-bootstrap/cms-ecs-bootstrap.sh ./
+         bash ./cms-ecs-bootstrap.sh
   EcsInstanceAsg:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn: ECSCluster
