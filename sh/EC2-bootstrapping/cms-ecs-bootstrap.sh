@@ -52,4 +52,8 @@ sed -i -e "\#\[monitor:///var/log/apps\]#,+4s/\(index = \).*/\1cms-ecs_$ENV/" /o
 diff -U0 /opt/splunkforwarder/etc/system/local/inputs.conf{.bck,}
 echo
 
+#Restaring Splunk collector
+/etc/init.d/splunk restart
+echo
+
 echo "CMS ECS customisation DONE"
