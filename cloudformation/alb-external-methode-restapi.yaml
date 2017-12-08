@@ -1,0 +1,177 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  External ALB & TGs for Methode RESTAPI
+Parameters:
+  SecurityGroupIds:
+    Type: CommaDelimitedList
+    Description: Security Groups to attach load balancer
+    Default: sg-15be656d,sg-eae09d91
+  SubnetIds:
+    Type: CommaDelimitedList
+    Description: Public subnets to attach load balancer
+    Default: subnet-48bd0c01,subnet-0839cd53,subnet-e378d084
+  VpcId:
+    Type: String
+    Description: >
+      Optional - Specifies the ID of an existing VPC in which to launch
+      your container instances.
+    Default: vpc-729f2815
+    AllowedPattern: "^(?:vpc-[0-9a-f]{8}|)$"
+    ConstraintDescription: >
+      VPC Id must begin with 'vpc-'
+  TagDescription:
+    Description: Tag detail for the Description
+    Type: String
+    Default: External ALB for Methode RESTAPI
+  TagTeamDL:
+    Description: Tag detail for the TeamDL
+    ConstraintDescription: There must be a valid email address for the TeamDL Topic
+    Type: String
+    AllowedPattern: ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+    Default: team.cms@ft.com
+  TagSystemCode:
+      Description: SystemCode
+      Type: String
+      Default: meth-swing
+Resources:
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+     Name: !Sub "${AWS::StackName}"
+     Type: application
+     Scheme: internet-facing
+     Subnets: !Ref SubnetIds
+     SecurityGroups: !Ref SecurityGroupIds
+     Tags:
+       -
+         Key: Name
+         Value: !Sub "CMS-${AWS::StackName}"
+       -
+         Key: Description
+         Value:
+           Ref: TagDescription
+       -
+         Key: environment
+         Value: "p"
+       - Key: teamDL
+         Value:
+           Ref: TagTeamDL
+       - Key: systemCode
+         Value:
+           Ref: TagSystemCode
+  TargetGroupRESTAPIDev:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+     Name: "TG-methode-restapi-dev"
+     Port: 8080
+     Protocol: HTTP
+     HealthCheckPath: /api
+     HealthCheckProtocol: HTTP
+     Matcher:
+       HttpCode: '302'
+     TargetGroupAttributes:
+     - Key: deregistration_delay.timeout_seconds
+       Value: '60'
+     - Key: stickiness.enabled
+       Value: true
+     VpcId: !Ref VpcId
+  TargetGroupRESTAPITest:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+     Name: "TG-methode-restapi-test"
+     Port: 8080
+     Protocol: HTTP
+     HealthCheckPath: /api
+     HealthCheckProtocol: HTTP
+     Matcher:
+       HttpCode: '302'
+     TargetGroupAttributes:
+     - Key: deregistration_delay.timeout_seconds
+       Value: '60'
+     - Key: stickiness.enabled
+       Value: true
+     VpcId: !Ref VpcId
+  TargetGroupRESTAPIProd:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+     Name: "TG-methode-restapi-prod"
+     Port: 8080
+     Protocol: HTTP
+     HealthCheckPath: /api
+     HealthCheckProtocol: HTTP
+     Matcher:
+       HttpCode: '302'
+     TargetGroupAttributes:
+     - Key: deregistration_delay.timeout_seconds
+       Value: '60'
+     - Key: stickiness.enabled
+       Value: true
+     VpcId: !Ref VpcId
+  ListenerHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: TargetGroupRESTAPIDev
+      LoadBalancerArn:
+        Ref: ApplicationLoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: arn:aws:acm:eu-west-1:307921801440:certificate/00b98d3d-2c61-4a52-a28c-5bbb79c04011
+  ListenerRuleRESTAPIDev:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: TargetGroupRESTAPIDev
+      Conditions:
+      - Field: host-header
+        Values:
+        - "cms-dev.ft.com"  
+      - Field: path-pattern
+        Values:
+        - "/api/*"
+      ListenerArn:
+        Ref: ListenerHTTPS
+      Priority: 10
+  ListenerRuleRESTAPITest:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: TargetGroupRESTAPITest
+      Conditions:
+      - Field: host-header
+        Values:
+        - "cms-test.ft.com"  
+      - Field: path-pattern
+        Values:
+        - "/api/*"
+      ListenerArn:
+        Ref: ListenerHTTPS
+      Priority: 20
+  ListenerRuleRESTAPIProd:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: TargetGroupRESTAPIProd
+      Conditions:
+      - Field: host-header
+        Values:
+        - "cms.ft.com"  
+      - Field: path-pattern
+        Values:
+        - "/api/*"
+      ListenerArn:
+        Ref: ListenerHTTPS
+      Priority: 30
+Outputs:
+  LoadBalancerDNSName:
+    Description: Load Balancer DNS Name
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
