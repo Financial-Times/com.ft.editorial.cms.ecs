@@ -59,6 +59,10 @@ Resources:
          Key: Description
          Value:
            Ref: TagDescription
+       -
+         Key: environment
+         Value:
+           Ref: TagEnvironment
        - Key: teamDL
          Value:
            Ref: TagTeamDL
