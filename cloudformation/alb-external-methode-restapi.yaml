@@ -2,6 +2,10 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   External ALB & TGs for Methode RESTAPI
 Parameters:
+  ALBName:
+    Type: String
+    Description: ALB Name
+    Default: "ALB-methode-restapi"
   SecurityGroupIds:
     Type: CommaDelimitedList
     Description: Security Groups to attach load balancer
@@ -37,7 +41,8 @@ Resources:
   ApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-     Name: !Sub "${AWS::StackName}"
+     Name:
+       Ref: ALBName
      Type: application
      Scheme: internet-facing
      Subnets: !Ref SubnetIds
@@ -59,53 +64,68 @@ Resources:
        - Key: systemCode
          Value:
            Ref: TagSystemCode
-  TargetGroupRESTAPIDev:
+  TargetGroupRESTAPIInt:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-     Name: "TG-methode-restapi-dev"
-     Port: 8080
+     Name: "TG-methode-restapi-int"
+     Port: 80
      Protocol: HTTP
-     HealthCheckPath: /api
+     HealthCheckPath: /api/
      HealthCheckProtocol: HTTP
+     HealthCheckIntervalSeconds: 5
+     HealthCheckTimeoutSeconds: 2
+     HealthyThresholdCount: 2
      Matcher:
-       HttpCode: '302'
+       HttpCode: '200'
      TargetGroupAttributes:
      - Key: deregistration_delay.timeout_seconds
        Value: '60'
      - Key: stickiness.enabled
        Value: true
+     - Key: stickiness.lb_cookie.duration_seconds
+       Value: 86400       
      VpcId: !Ref VpcId
   TargetGroupRESTAPITest:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
      Name: "TG-methode-restapi-test"
-     Port: 8080
+     Port: 80
      Protocol: HTTP
-     HealthCheckPath: /api
+     HealthCheckPath: /api/
      HealthCheckProtocol: HTTP
+     HealthCheckIntervalSeconds: 5
+     HealthCheckTimeoutSeconds: 2
+     HealthyThresholdCount: 2
      Matcher:
-       HttpCode: '302'
+       HttpCode: '200'
      TargetGroupAttributes:
      - Key: deregistration_delay.timeout_seconds
        Value: '60'
      - Key: stickiness.enabled
        Value: true
+     - Key: stickiness.lb_cookie.duration_seconds
+       Value: 86400
      VpcId: !Ref VpcId
   TargetGroupRESTAPIProd:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
      Name: "TG-methode-restapi-prod"
-     Port: 8080
+     Port: 80
      Protocol: HTTP
-     HealthCheckPath: /api
+     HealthCheckPath: /api/
      HealthCheckProtocol: HTTP
+     HealthCheckIntervalSeconds: 5
+     HealthCheckTimeoutSeconds: 2
+     HealthyThresholdCount: 2
      Matcher:
-       HttpCode: '302'
+       HttpCode: '200'
      TargetGroupAttributes:
      - Key: deregistration_delay.timeout_seconds
        Value: '60'
      - Key: stickiness.enabled
        Value: true
+     - Key: stickiness.lb_cookie.duration_seconds
+       Value: 86400
      VpcId: !Ref VpcId
   ListenerHTTPS:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -113,24 +133,24 @@ Resources:
       DefaultActions:
       - Type: forward
         TargetGroupArn:
-          Ref: TargetGroupRESTAPIDev
+          Ref: TargetGroupRESTAPIInt
       LoadBalancerArn:
         Ref: ApplicationLoadBalancer
       Port: 443
       Protocol: HTTPS
       Certificates:
         - CertificateArn: arn:aws:acm:eu-west-1:307921801440:certificate/00b98d3d-2c61-4a52-a28c-5bbb79c04011
-  ListenerRuleRESTAPIDev:
+  ListenerRuleRESTAPIInt:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
       Actions:
       - Type: forward
         TargetGroupArn:
-          Ref: TargetGroupRESTAPIDev
+          Ref: TargetGroupRESTAPIInt
       Conditions:
       - Field: host-header
         Values:
-        - "cms-dev.ft.com"  
+        - "cms-int.ft.com"  
       - Field: path-pattern
         Values:
         - "/api/*"
