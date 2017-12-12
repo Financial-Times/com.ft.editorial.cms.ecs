@@ -2,12 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   Editorial Container Cluster
 Parameters:
-  EcsClusterName:
-    Type: String
-    Description: >
-      Specifies the ECS Cluster Name with which the resources would be
-      associated
-    Default: default
   EcsAmiId:
     Type: String
     Description: >
@@ -175,7 +169,7 @@ Resources:
           Key: environment
           PropagateAtLaunch: 'true'
           Value:
-            Ref: TagEnvironment            
+            Ref: TagEnvironment
         - Key: teamDL
           PropagateAtLaunch: 'true'
           Value:
