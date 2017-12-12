@@ -26,7 +26,7 @@ Parameters:
   TagEnvironment:
     Description: Tag detail for the Environment
     Type: String
-    Default: d
+    Default: int
     AllowedValues:
       - 'd'
       - 't'
@@ -41,7 +41,7 @@ Parameters:
   TagSystemCode:
       Description: SystemCode
       Type: String
-      Default: meth-swing
+      Default: methode
 Resources:
   ApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
