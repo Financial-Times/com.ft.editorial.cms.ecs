@@ -5,9 +5,9 @@ Parameters:
   EcsAmiId:
     Type: String
     Description: >
-      Specifies the AMI ID for your container instances.
-      Default: amzn-ami-2017.03.g-amazon-ecs-optimized (ami-13f7226a)
-    Default: ami-13f7226a
+      Specifies the AMI ID for container instances.
+      Default: amazon/amzn-ami-2017.09.d-amazon-ecs-optimized (ami-4cbe0935)
+    Default: ami-4cbe0935
   EcsInstanceType:
     Type: CommaDelimitedList
     Description: >
@@ -68,6 +68,12 @@ Parameters:
   AsgMaxSize:
     Type: Number
     Description: >
+      Specifies the maximum number of instances to scale up in cluster.
+      Defaults to 6.
+    Default: '6'
+  AsgDesiredSize:
+    Type: Number
+    Description: >
       Specifies the number of instances to launch and register to the cluster.
       Defaults to 3.
     Default: '3'
@@ -84,7 +90,7 @@ Parameters:
   TagEnvironment:
     Description: Tag detail for the Environment
     Type: String
-    Default: d
+    Default: int
     AllowedValues:
       - 'd'
       - 't'
@@ -99,7 +105,7 @@ Parameters:
   TagSystemCode:
       Description: SystemCode
       Type: String
-      Default: meth-swing
+      Default: methode
 Resources:
   ECSCluster:
     Type: AWS::ECS::Cluster
@@ -154,7 +160,7 @@ Resources:
       LaunchConfigurationName: !Ref EcsInstanceLc
       MinSize: 1
       MaxSize: !Ref AsgMaxSize
-      DesiredCapacity: !Ref AsgMaxSize
+      DesiredCapacity: !Ref AsgDesiredSize
       Tags:
         -
           Key: Name
