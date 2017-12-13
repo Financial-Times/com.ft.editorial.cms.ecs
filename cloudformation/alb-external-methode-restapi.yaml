@@ -9,11 +9,11 @@ Parameters:
   SecurityGroupIds:
     Type: CommaDelimitedList
     Description: Security Groups to attach load balancer
-    Default: sg-15be656d,sg-eae09d91
+    Default: sg-15be656d,sg-78da9b03
   SubnetIds:
     Type: CommaDelimitedList
     Description: Public subnets to attach load balancer
-    Default: subnet-48bd0c01,subnet-0839cd53,subnet-e378d084
+    Default: subnet-cbbc0d82,subnet-3f3fcb64,subnet-a467cfc3
   VpcId:
     Type: String
     Description: >
