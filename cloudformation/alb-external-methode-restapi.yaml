@@ -72,9 +72,10 @@ Resources:
      Protocol: HTTP
      HealthCheckPath: /api/
      HealthCheckProtocol: HTTP
-     HealthCheckIntervalSeconds: 5
-     HealthCheckTimeoutSeconds: 2
+     HealthCheckIntervalSeconds: 10
+     HealthCheckTimeoutSeconds: 5
      HealthyThresholdCount: 2
+     UnhealthyThresholdCount: 4
      Matcher:
        HttpCode: '200'
      TargetGroupAttributes:
@@ -93,9 +94,10 @@ Resources:
      Protocol: HTTP
      HealthCheckPath: /api/
      HealthCheckProtocol: HTTP
-     HealthCheckIntervalSeconds: 5
-     HealthCheckTimeoutSeconds: 2
+     HealthCheckIntervalSeconds: 10
+     HealthCheckTimeoutSeconds: 5
      HealthyThresholdCount: 2
+     UnhealthyThresholdCount: 4
      Matcher:
        HttpCode: '200'
      TargetGroupAttributes:
@@ -114,9 +116,10 @@ Resources:
      Protocol: HTTP
      HealthCheckPath: /api/
      HealthCheckProtocol: HTTP
-     HealthCheckIntervalSeconds: 5
-     HealthCheckTimeoutSeconds: 2
+     HealthCheckIntervalSeconds: 10
+     HealthCheckTimeoutSeconds: 5
      HealthyThresholdCount: 2
+     UnhealthyThresholdCount: 4
      Matcher:
        HttpCode: '200'
      TargetGroupAttributes:
