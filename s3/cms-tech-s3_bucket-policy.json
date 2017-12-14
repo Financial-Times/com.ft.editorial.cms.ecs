@@ -1,0 +1,60 @@
+{
+    "Version": "2012-10-17",
+    "Id": "Policy_CMS_Tech-S3-access",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::307921801440:user/ecr-com-ft-editorial-poweruser"
+            },
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject",
+                "s3:GetObjectTagging",
+                "s3:PutObjectTagging",
+                "s3:DeleteObjectTagging",
+                "s3:GetObjectVersion"
+            ],
+            "Resource": "arn:aws:s3:::cms-tech-s3/*"
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::307921801440:user/ecr-com-ft-editorial-poweruser"
+            },
+            "Action": [
+                "s3:GetBucketLocation",
+                "s3:GetBucketTagging",
+                "s3:ListBucketVersions",
+                "s3:ListBucket"
+            ],
+            "Resource": "arn:aws:s3:::cms-tech-s3"
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::307921801440:role/FTApplicationRoleForECSInstanceRole"
+            },
+            "Action": [
+                "s3:GetObject",
+                "s3:GetObjectTagging",
+                "s3:GetObjectVersion"
+            ],
+            "Resource": "arn:aws:s3:::cms-tech-s3/*"
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::307921801440:role/FTApplicationRoleForECSInstanceRole"
+            },
+            "Action": [
+                "s3:GetBucketLocation",
+                "s3:GetBucketTagging",
+                "s3:ListBucketVersions",
+                "s3:ListBucket"
+            ],
+            "Resource": "arn:aws:s3:::cms-tech-s3"
+        }
+    ]
+}
