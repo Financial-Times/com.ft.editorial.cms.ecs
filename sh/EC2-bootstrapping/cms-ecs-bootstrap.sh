@@ -39,6 +39,7 @@ echo "Adding logging drivers to ECS config"
 echo 'ECS_AVAILABLE_LOGGING_DRIVERS= ["json-file","awslogs","splunk"]' >> /etc/ecs/ecs.config
 cat /etc/ecs/ecs.config
 echo
+stop ecs && start ecs
 
 #Updating Splunk collector configuration (CMT-1890)
 echo "Updating Splunk collector configuration"
