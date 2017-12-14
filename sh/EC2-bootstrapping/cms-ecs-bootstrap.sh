@@ -6,7 +6,7 @@ case $1 in
 		export ENV="prod"
 		;;
 	"int")
-		export ENV="prod"
+		export ENV="int"
 		;;
 	"t")
 		export ENV="test"
