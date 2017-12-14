@@ -48,7 +48,7 @@ Parameters:
     Description: >
       Comma separated values specifying the Security Group Ids of an existing Security
       Groups. Leave blank to have a new Security Group created
-    Default: sg-15be656d,sg-79ba6101
+    Default: sg-15be656d,sg-e1875c99
   VpcCidr:
     Type: String
     Description: Optional - Specifies the CIDR Block of VPC
