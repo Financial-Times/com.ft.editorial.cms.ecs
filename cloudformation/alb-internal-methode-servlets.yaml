@@ -46,6 +46,9 @@ Resources:
   ApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
+     LoadBalancerAttributes:
+       - Key: deletion_protection.enabled
+         Value: true
      Name: !Sub "${AWS::StackName}"
      Type: application
      Scheme: internal # or internet-facing
@@ -81,7 +84,7 @@ Resources:
        HttpCode: '200'
      TargetGroupAttributes:
      - Key: deregistration_delay.timeout_seconds
-       Value: '60'
+       Value: '10'
      - Key: stickiness.enabled
        Value: true
      VpcId: !Ref VpcId
