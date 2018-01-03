@@ -9,11 +9,11 @@ Parameters:
   SecurityGroupIds:
     Type: CommaDelimitedList
     Description: Security Groups to attach load balancer
-    Default: sg-15be656d,sg-eae09d91
+    Default: sg-e1875c99,sg-78da9b03
   SubnetIds:
     Type: CommaDelimitedList
     Description: Public subnets to attach load balancer
-    Default: subnet-48bd0c01,subnet-0839cd53,subnet-e378d084
+    Default: subnet-cbbc0d82,subnet-3f3fcb64,subnet-a467cfc3
   VpcId:
     Type: String
     Description: >
@@ -72,9 +72,10 @@ Resources:
      Protocol: HTTP
      HealthCheckPath: /api/
      HealthCheckProtocol: HTTP
-     HealthCheckIntervalSeconds: 5
-     HealthCheckTimeoutSeconds: 2
+     HealthCheckIntervalSeconds: 10
+     HealthCheckTimeoutSeconds: 5
      HealthyThresholdCount: 2
+     UnhealthyThresholdCount: 4
      Matcher:
        HttpCode: '200'
      TargetGroupAttributes:
@@ -93,9 +94,10 @@ Resources:
      Protocol: HTTP
      HealthCheckPath: /api/
      HealthCheckProtocol: HTTP
-     HealthCheckIntervalSeconds: 5
-     HealthCheckTimeoutSeconds: 2
+     HealthCheckIntervalSeconds: 10
+     HealthCheckTimeoutSeconds: 5
      HealthyThresholdCount: 2
+     UnhealthyThresholdCount: 4
      Matcher:
        HttpCode: '200'
      TargetGroupAttributes:
@@ -114,9 +116,10 @@ Resources:
      Protocol: HTTP
      HealthCheckPath: /api/
      HealthCheckProtocol: HTTP
-     HealthCheckIntervalSeconds: 5
-     HealthCheckTimeoutSeconds: 2
+     HealthCheckIntervalSeconds: 10
+     HealthCheckTimeoutSeconds: 5
      HealthyThresholdCount: 2
+     UnhealthyThresholdCount: 4
      Matcher:
        HttpCode: '200'
      TargetGroupAttributes:
