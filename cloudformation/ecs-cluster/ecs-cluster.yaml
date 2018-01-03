@@ -20,10 +20,10 @@ Parameters:
   SubnetType:
     Type: String
     Description: Select type of subnet to deploy to
-    Default: Public
+    Default: Private
     AllowedValues:
-      - Public
       - Private
+      - Public
   KeyName:
     Type: String
     Description: >
@@ -45,7 +45,7 @@ Parameters:
   Sudo:
     Description: Sudo Group to be applied by default
     Type: String
-    Default: eng
+    Default: GLO-Editorial-Technology
   AsgMaxSize:
     Type: Number
     Description: >
@@ -90,15 +90,20 @@ Parameters:
 
 Mappings:
   SecurityGroupMap:
-    Public:
-      "ids": "sg-15be656d,sg-79ba6101,sg-98ba61e0"
-    Private:
-      "ids": "sg-15be656d,sg-76b9620e,sg-98ba61e0"
+    Ids:
+      "default": "sg-e1875c99"
+      "resources": "sg-15be656d"
+      "web": "sg-79ba6101"
+      "private": "sg-98ba61e0"
   SubnetMap:
     Public:
-      "ids": "subnet-cbbc0d82,subnet-3f3fcb64,subnet-a467cfc3"
+      "a": "subnet-cbbc0d82"
+      "b": "subnet-3f3fcb64"
+      "c": "subnet-a467cfc3"
     Private:
-      "ids": "subnet-e378d084,subnet-48bd0c01,subnet-0839cd53"
+      "a": "subnet-48bd0c01"
+      "b": "subnet-0839cd53"
+      "c": "subnet-e378d084"
   PublicIPMap:
     Public:
       "bool": true
@@ -118,7 +123,10 @@ Resources:
       AssociatePublicIpAddress: !FindInMap [PublicIPMap, !Ref SubnetType, bool]
       IamInstanceProfile: !Ref IamRoleInstanceProfile
       KeyName: !Ref KeyName
-      SecurityGroups: !FindInMap [SecurityGroupMap, !Ref SubnetType, ids]
+      SecurityGroups:
+        - !FindInMap [SecurityGroupMap, Ids, default]
+        - !FindInMap [SecurityGroupMap, Ids, web]
+        - !FindInMap [SecurityGroupMap, Ids, resources]
       BlockDeviceMappings:
         - DeviceName: "/dev/xvda"
           Ebs:
@@ -155,7 +163,10 @@ Resources:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn: ECSCluster
     Properties:
-      VPCZoneIdentifier: !FindInMap [SubnetMap, !Ref SubnetType, ids]
+      VPCZoneIdentifier:
+        - !FindInMap [SubnetMap, !Ref SubnetType, a]
+        - !FindInMap [SubnetMap, !Ref SubnetType, b]
+        - !FindInMap [SubnetMap, !Ref SubnetType, c]
       LaunchConfigurationName: !Ref EcsInstanceLc
       MinSize: 1
       MaxSize: !Ref AsgMaxSize
