@@ -39,9 +39,27 @@ Parameters:
     AllowedPattern: ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
     Default: team.cms@ft.com
   TagSystemCode:
-      Description: SystemCode
-      Type: String
-      Default: methode
+    Description: SystemCode
+    Type: String
+    Default: methode
+  MethodeApp:
+    Description: Methode Application Stack
+    Type: String
+    Default: wires
+    AllowedValues:
+      - 'wires'
+      - 'staging'
+      - 'archive'
+Mappings:
+  EnvMap:
+    d:
+      env: "dev"
+    t:
+      env: "test"
+    p:
+      env: "prod"
+    int:
+      env: "int"
 Resources:
   ApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -88,6 +106,24 @@ Resources:
      - Key: stickiness.enabled
        Value: true
      VpcId: !Ref VpcId
+  TargetGroupRhelper:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+     Name: !Sub
+      - TG-methode-rhelper-${App}-${Env}
+      - { App: !Ref MethodeApp, Env: !FindInMap [ EnvMap, !Ref TagEnvironment, env ] }
+     Port: 8080
+     Protocol: HTTP
+     HealthCheckPath: /rhelper/
+     HealthCheckProtocol: HTTP
+     Matcher:
+       HttpCode: '200'
+     TargetGroupAttributes:
+     - Key: deregistration_delay.timeout_seconds
+       Value: '10'
+     - Key: stickiness.enabled
+       Value: true
+     VpcId: !Ref VpcId
   ListenerHTTP:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -113,6 +149,20 @@ Resources:
       ListenerArn:
         Ref: ListenerHTTP
       Priority: 10
+  ListenerRuleRhelper:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: TargetGroupRhelper
+      Conditions:
+      - Field: path-pattern
+        Values:
+        - "/rhelper/*"
+      ListenerArn:
+        Ref: ListenerHTTP
+      Priority: 20
 Outputs:
   LoadBalancerDNSName:
     Description: Load Balancer DNS Name
