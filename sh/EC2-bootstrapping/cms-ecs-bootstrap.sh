@@ -45,10 +45,11 @@ stop ecs && start ecs
 echo "Updating Splunk collector configuration"
 cp -v /opt/splunkforwarder/etc/system/local/props.conf{,.bck}
 sed -i -e '\#\[source::.../log/(apps|apps/...|restricted/\*/apps|restricted/\*/apps/...)/\*\.log\]#{n; s/\(sourcetype = \)log4j/\1access_combined_time/}' /opt/splunkforwarder/etc/system/local/props.conf
+echo -e "\n[source::.../log/apps/*/*.app.log]\nsourcetype = log4j\npriority = 99" >> /opt/splunkforwarder/etc/system/local/props.conf
 diff -U0 /opt/splunkforwarder/etc/system/local/props.conf{.bck,}
 echo
 cp -v /opt/splunkforwarder/etc/system/local/inputs.conf{,.bck}
-sed -i -e '\#\[monitor:///var/log/apps\]#,+4s/\(whitelist = \).*/\1tomcat_access_.\*\\.log\$/' /opt/splunkforwarder/etc/system/local/inputs.conf
+sed -i -e '\#\[monitor:///var/log/apps\]#,+4s/\(whitelist = \).*/\1(tomcat_access_.*\\.log|.*\\.app\\.log)\$/' /opt/splunkforwarder/etc/system/local/inputs.conf
 sed -i -e "\#\[monitor:///var/log/apps\]#,+4s/\(index = \).*/\1cms-ecs_$ENV/" /opt/splunkforwarder/etc/system/local/inputs.conf
 diff -U0 /opt/splunkforwarder/etc/system/local/inputs.conf{.bck,}
 echo
