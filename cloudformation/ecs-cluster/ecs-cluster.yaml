@@ -6,8 +6,8 @@ Parameters:
     Type: String
     Description: >
       Specifies the AMI ID for container instances.
-      Default: amzn-ami-2017.09.g-amazon-ecs-optimized (ami-1d46df64)
-    Default: ami-1d46df64
+      Default: amazon/amzn-ami-2017.09.d-amazon-ecs-optimized (ami-4cbe0935)
+    Default: ami-4cbe0935
   EcsInstanceType:
     Type: CommaDelimitedList
     Description: >
@@ -138,7 +138,7 @@ Resources:
          #!/bin/bash
          echo ECS_CLUSTER=${AWS::StackName} >> /etc/ecs/ecs.config
          export PATH=/usr/local/bin:$PATH
-         yum -y install jq nfs-utils
+         yum -y install jq
          easy_install pip
          pip install --upgrade awscli
          aws configure set default.region ${AWS::Region}
@@ -171,9 +171,6 @@ Resources:
       MinSize: 1
       MaxSize: !Ref AsgMaxSize
       DesiredCapacity: !Ref AsgDesiredSize
-      MetricsCollection:
-      -
-        Granularity: "1Minute"
       Tags:
         -
           Key: Name
@@ -204,3 +201,6 @@ Outputs:
   UsedByECSCreateCluster:
     Description: Flag used by EC2 Container Service Create Cluster Wizard
     Value: 'true'
+  TemplateVersion:
+    Description: The version of the template used by Create Cluster Wizard
+    Value: '1.0.0'
