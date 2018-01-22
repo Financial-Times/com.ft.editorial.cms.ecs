@@ -57,4 +57,10 @@ echo
 /etc/init.d/splunk restart
 echo
 
+#Set FT nameservers
+aws s3 cp s3://cms-tech-s3/ECS-bootstrap/nameservers.sh ./
+. ./nameservers.sh
+
+echo
+
 echo "CMS ECS customisation DONE"
