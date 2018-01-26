@@ -10,11 +10,8 @@
 RESOLV_CONF_SOURCE="s3://cms-tech-s3/ECS-bootstrap/files/resolv.conf"
 RESOLV_CONF_TARGET="/etc/resolv.conf"
 
-errorAndExit() {
-  logger $1
-  echo $1
-  exit $2
-}
+# Source common functions
+. $(dirname $0)/functions.sh
 
 disablePeerdns() {
   # Set PEERDNS=no in /etc/sysconfig/network-scripts/ifcfg-eth0

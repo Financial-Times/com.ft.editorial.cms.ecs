@@ -58,9 +58,16 @@ echo
 /etc/init.d/splunk restart
 echo
 
+#Pull common functions
+aws s3 cp s3://cms-tech-s3/ECS-bootstrap/functions.sh ./
+
 #Set FT nameservers
 aws s3 cp s3://cms-tech-s3/ECS-bootstrap/nameservers.sh ./
 . ./nameservers.sh
+
+#Configure autofs for NFS shares
+aws s3 cp s3://cms-tech-s3/ECS-bootstrap/autofs.sh ./
+. ./autofs.sh
 
 echo
 
