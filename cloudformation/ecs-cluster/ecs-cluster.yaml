@@ -16,6 +16,7 @@ Parameters:
     Default: t2.small
     AllowedValues:
       - t2.small
+      - t2.medium
       - m3.medium
   SubnetType:
     Type: String
@@ -93,7 +94,6 @@ Mappings:
     Ids:
       "default": "sg-e1875c99"
       "resources": "sg-15be656d"
-      "web": "sg-79ba6101"
       "private": "sg-98ba61e0"
   SubnetMap:
     Public:
@@ -125,7 +125,6 @@ Resources:
       KeyName: !Ref KeyName
       SecurityGroups:
         - !FindInMap [SecurityGroupMap, Ids, default]
-        - !FindInMap [SecurityGroupMap, Ids, web]
         - !FindInMap [SecurityGroupMap, Ids, resources]
       BlockDeviceMappings:
         - DeviceName: "/dev/xvda"
