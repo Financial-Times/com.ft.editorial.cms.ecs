@@ -67,7 +67,7 @@ aws s3 cp s3://cms-tech-s3/ECS-bootstrap/nameservers.sh ./
 
 #Configure autofs for NFS shares
 aws s3 cp s3://cms-tech-s3/ECS-bootstrap/autofs.sh ./
-. ./autofs.sh
+. ./eomfs.sh
 
 echo
 
