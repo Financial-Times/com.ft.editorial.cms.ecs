@@ -116,6 +116,10 @@ Resources:
      Protocol: HTTP
      HealthCheckPath: /rhelper/
      HealthCheckProtocol: HTTP
+     HealthCheckIntervalSeconds: 10
+     HealthCheckTimeoutSeconds: 5
+     HealthyThresholdCount: 2
+     UnhealthyThresholdCount: 5
      Matcher:
        HttpCode: '200'
      TargetGroupAttributes:
@@ -134,6 +138,32 @@ Resources:
      Protocol: HTTP
      HealthCheckPath: /checkin/
      HealthCheckProtocol: HTTP
+     HealthCheckIntervalSeconds: 10
+     HealthCheckTimeoutSeconds: 5
+     HealthyThresholdCount: 2
+     UnhealthyThresholdCount: 5
+     Matcher:
+       HttpCode: '200'
+     TargetGroupAttributes:
+     - Key: deregistration_delay.timeout_seconds
+       Value: '10'
+     - Key: stickiness.enabled
+       Value: true
+     VpcId: !Ref VpcId
+  TargetGroupPreview:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+     Name: !Sub
+      - TG-methode-preview-${App}-${Env}
+      - { App: !Ref MethodeApp, Env: !FindInMap [ EnvMap, !Ref TagEnvironment, env ] }
+     Port: 8080
+     Protocol: HTTP
+     HealthCheckPath: /preview/
+     HealthCheckProtocol: HTTP
+     HealthCheckIntervalSeconds: 10
+     HealthCheckTimeoutSeconds: 5
+     HealthyThresholdCount: 2
+     UnhealthyThresholdCount: 5
      Matcher:
        HttpCode: '200'
      TargetGroupAttributes:
@@ -195,6 +225,20 @@ Resources:
       ListenerArn:
         Ref: ListenerHTTP
       Priority: 30
+  ListenerRulePreview:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: TargetGroupPreview
+      Conditions:
+      - Field: path-pattern
+        Values:
+        - "/preview/*"
+      ListenerArn:
+        Ref: ListenerHTTP
+      Priority: 40
 Outputs:
   LoadBalancerDNSName:
     Description: Load Balancer DNS Name
