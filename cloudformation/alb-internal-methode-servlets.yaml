@@ -136,7 +136,7 @@ Resources:
       - { App: !Ref MethodeApp, Env: !FindInMap [ EnvMap, !Ref TagEnvironment, env ] }
      Port: 8080
      Protocol: HTTP
-     HealthCheckPath: /checkin/
+     HealthCheckPath: /emcheckin/
      HealthCheckProtocol: HTTP
      HealthCheckIntervalSeconds: 10
      HealthCheckTimeoutSeconds: 5
