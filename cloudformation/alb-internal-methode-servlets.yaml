@@ -221,7 +221,7 @@ Resources:
       Conditions:
       - Field: path-pattern
         Values:
-        - "/checkin/*"
+        - "/emcheckin/*"
       ListenerArn:
         Ref: ListenerHTTP
       Priority: 30
