@@ -207,7 +207,7 @@ Resources:
       Conditions:
       - Field: path-pattern
         Values:
-        - "/rhelper/*"
+        - "/rhelper*"
       ListenerArn:
         Ref: ListenerHTTP
       Priority: 20
@@ -221,7 +221,7 @@ Resources:
       Conditions:
       - Field: path-pattern
         Values:
-        - "/emcheckin/*"
+        - "/emcheckin*"
       ListenerArn:
         Ref: ListenerHTTP
       Priority: 30
@@ -235,7 +235,7 @@ Resources:
       Conditions:
       - Field: path-pattern
         Values:
-        - "/preview/*"
+        - "/preview*"
       ListenerArn:
         Ref: ListenerHTTP
       Priority: 40
