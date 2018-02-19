@@ -137,7 +137,7 @@ Resources:
          #!/bin/bash
          echo ECS_CLUSTER=${AWS::StackName} >> /etc/ecs/ecs.config
          export PATH=/usr/local/bin:$PATH
-         yum -y install jq nfs-utils autofs
+         yum -y install jq nfs-utils autofs tcpdump
          easy_install pip
          pip install --upgrade awscli
          aws configure set default.region ${AWS::Region}
