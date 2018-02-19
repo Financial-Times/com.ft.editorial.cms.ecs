@@ -13,7 +13,7 @@ Parameters:
     Description: >
       Specifies the EC2 instance type for your container instances.
       Defaults to t2.small
-    Default: t2.small
+    Default: t2.medium
     AllowedValues:
       - t2.small
       - t2.medium
