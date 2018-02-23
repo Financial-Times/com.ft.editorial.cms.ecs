@@ -136,7 +136,7 @@ Resources:
       - { App: !Ref MethodeApp, Env: !FindInMap [ EnvMap, !Ref TagEnvironment, env ] }
      Port: 8080
      Protocol: HTTP
-     HealthCheckPath: /checkin/
+     HealthCheckPath: /emcheckin/
      HealthCheckProtocol: HTTP
      HealthCheckIntervalSeconds: 10
      HealthCheckTimeoutSeconds: 5
@@ -207,7 +207,7 @@ Resources:
       Conditions:
       - Field: path-pattern
         Values:
-        - "/rhelper/*"
+        - "/rhelper*"
       ListenerArn:
         Ref: ListenerHTTP
       Priority: 20
@@ -221,7 +221,7 @@ Resources:
       Conditions:
       - Field: path-pattern
         Values:
-        - "/checkin/*"
+        - "/emcheckin*"
       ListenerArn:
         Ref: ListenerHTTP
       Priority: 30
@@ -235,7 +235,7 @@ Resources:
       Conditions:
       - Field: path-pattern
         Values:
-        - "/preview/*"
+        - "/preview*"
       ListenerArn:
         Ref: ListenerHTTP
       Priority: 40

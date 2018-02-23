@@ -13,7 +13,7 @@ Parameters:
     Description: >
       Specifies the EC2 instance type for your container instances.
       Defaults to t2.small
-    Default: t2.small
+    Default: t2.medium
     AllowedValues:
       - t2.small
       - t2.medium
@@ -137,7 +137,7 @@ Resources:
          #!/bin/bash
          echo ECS_CLUSTER=${AWS::StackName} >> /etc/ecs/ecs.config
          export PATH=/usr/local/bin:$PATH
-         yum -y install jq nfs-utils autofs strace lsof
+         yum -y install jq nfs-utils autofs
          easy_install pip
          pip install --upgrade awscli
          aws configure set default.region ${AWS::Region}

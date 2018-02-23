@@ -70,7 +70,7 @@ Resources:
      Name: "TG-methode-restapi-int"
      Port: 80
      Protocol: HTTP
-     HealthCheckPath: /api/
+     HealthCheckPath: /api/rest
      HealthCheckProtocol: HTTP
      HealthCheckIntervalSeconds: 10
      HealthCheckTimeoutSeconds: 5
@@ -92,7 +92,7 @@ Resources:
      Name: "TG-methode-restapi-test"
      Port: 80
      Protocol: HTTP
-     HealthCheckPath: /api/
+     HealthCheckPath: /api/rest
      HealthCheckProtocol: HTTP
      HealthCheckIntervalSeconds: 10
      HealthCheckTimeoutSeconds: 5
@@ -114,7 +114,7 @@ Resources:
      Name: "TG-methode-restapi-prod"
      Port: 80
      Protocol: HTTP
-     HealthCheckPath: /api/
+     HealthCheckPath: /api/rest
      HealthCheckProtocol: HTTP
      HealthCheckIntervalSeconds: 10
      HealthCheckTimeoutSeconds: 5
