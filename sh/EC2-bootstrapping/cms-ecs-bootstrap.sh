@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Bootstrap routine for ECS instance
+#
+# When script has been modified upload it https://s3-eu-west-1.amazonaws.com/cms-tech-s3/ECS-bootstrap/cms-ecs-bootstrap.sh
+
 #Workout enviroment name
 case $1 in
 	"p")
@@ -44,12 +48,10 @@ stop ecs && start ecs
 #Updating Splunk collector configuration (CMT-1890)
 echo "Updating Splunk collector configuration"
 cp -v /opt/splunkforwarder/etc/system/local/props.conf{,.bck}
-sed -i -e '\#\[source::.../log/(apps|apps/...|restricted/\*/apps|restricted/\*/apps/...)/\*\.log\]#{n; s/\(sourcetype = \)log4j/\1access_combined_time/}' /opt/splunkforwarder/etc/system/local/props.conf
-echo -e "\n[source::.../log/apps/*/*.app.log]\nsourcetype = log4j\npriority = 99" >> /opt/splunkforwarder/etc/system/local/props.conf
+echo -e "\n[source::.../log/apps/*/tomcat_access_*.log]\nsourcetype = access_combined_time\npriority = 99" >> /opt/splunkforwarder/etc/system/local/props.conf
 diff -U0 /opt/splunkforwarder/etc/system/local/props.conf{.bck,}
 echo
 cp -v /opt/splunkforwarder/etc/system/local/inputs.conf{,.bck}
-sed -i -e '\#\[monitor:///var/log/apps\]#,+4s/\(whitelist = \).*/\1(tomcat_access_.*\\.log|.*\\.app\\.log)$/' /opt/splunkforwarder/etc/system/local/inputs.conf
 sed -i -e "\#\[monitor:///var/log/apps\]#,+4s/\(index = \).*/\1cms-ecs_$ENV/" /opt/splunkforwarder/etc/system/local/inputs.conf
 diff -U0 /opt/splunkforwarder/etc/system/local/inputs.conf{.bck,}
 echo
