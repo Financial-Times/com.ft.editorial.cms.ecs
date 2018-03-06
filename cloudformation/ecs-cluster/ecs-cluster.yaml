@@ -137,7 +137,7 @@ Resources:
          #!/bin/bash
          echo ECS_CLUSTER=${AWS::StackName} >> /etc/ecs/ecs.config
          export PATH=/usr/local/bin:$PATH
-         yum -y install jq nfs-utils autofs
+         yum -y install jq nfs-utils autofs tcpdump
          easy_install pip
          pip install --upgrade awscli
          aws configure set default.region ${AWS::Region}
@@ -153,11 +153,13 @@ Resources:
          pip install --upgrade boto
          # Ready to run bootstrap.sh
          bash ./bootstrap.sh -s ${Sudo} -e ${TagEnvironment}
-         # Finally upgrade installed packages
+         # Upgrade latest packages
          yum upgrade -y
          # CMS ECS customisation
          aws s3 cp s3://cms-tech-s3/ECS-bootstrap/cms-ecs-bootstrap.sh ./
          bash ./cms-ecs-bootstrap.sh ${TagEnvironment}
+         # Bounce Instance
+         init 6
   EcsInstanceAsg:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn: ECSCluster
