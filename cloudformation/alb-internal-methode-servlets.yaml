@@ -267,7 +267,7 @@ Resources:
       Actions:
       - Type: forward
         TargetGroupArn:
-          Ref: TargetGroupPreview
+          Ref: TargetGroupFormats
       Conditions:
       - Field: path-pattern
         Values:
