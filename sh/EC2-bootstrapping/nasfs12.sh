@@ -12,7 +12,6 @@ credstashLookup() {
   credstash_table="cms-methode-credential-store"
   credstash_region="eu-west-1"
   RESPONSE=$(credstash -r ${credstash_region} -t ${credstash_table} get ${credstash_key})
-  echo ${RESPONSE}
   if [[ "${RESPONSE}"  =~ "An error occurred" ]]; then
     echo "credstash look up failed. QUERY: credstash -r ${credstash_region} -t ${credstash_table} get ${credstash_key}. Exit 1."
     exit 1
@@ -25,15 +24,15 @@ credstashLookup() {
 NFS_TIMEOUT="120"
 AUTOFS_MASTER="/etc/auto.master.d/nasfs12.autofs"
 declare -A SMB_BARCODE
-SMB_BARCODE[dev]="//nasfs12.ad.ft.com/Int/Barcode"
-SMB_BARCODE[int]="//nasfs12.ad.ft.com/Int/Barcode"
-SMB_BARCODE[test]="//nasfs12.ad.ft.com/Test/Barcode"
-SMB_BARCODE[prod]="//nasfs12.ad.ft.com/Production/Barcode"
+SMB_BARCODE[dev]="://nasfs12.ad.ft.com/Int/Barcode"
+SMB_BARCODE[int]="://nasfs12.ad.ft.com/Int/Barcode"
+SMB_BARCODE[test]="://nasfs12.ad.ft.com/Test/Barcode"
+SMB_BARCODE[prod]="://nasfs12.ad.ft.com/Production/Barcode"
 declare -A SMB_OUTPUT
-SMB_OUTPUT[dev]="//nasfs12.ad.ft.com/Development/Methode_Input"
-SMB_OUTPUT[int]="//nasfs12.ad.ft.com/Int/Methode_Input"
-SMB_OUTPUT[test]="//nasfs12.ad.ft.com/Test/Methode_Input"
-SMB_OUTPUT[prod]="//nasfs12.ad.ft.com/Production/Methode_Input"
+SMB_OUTPUT[dev]="://nasfs12.ad.ft.com/Development/Methode_Input"
+SMB_OUTPUT[int]="://nasfs12.ad.ft.com/Int/Methode_Input"
+SMB_OUTPUT[test]="://nasfs12.ad.ft.com/Test/Methode_Input"
+SMB_OUTPUT[prod]="://nasfs12.ad.ft.com/Production/Methode_Input"
 
 
 # Set environment dev in case it's not been set
@@ -44,9 +43,9 @@ USER=$(credstashLookup com.ft.editorial.methode.samba.username)
 PASS=$(credstashLookup com.ft.editorial.methode.samba.password)
 
 # Bailout if user unset
-test -z $USER && errorAndExit "No Samba username set. Exit 1." 1
+test -z ${#USER} && errorAndExit "No Samba username set. Exit 1." 1
 # Bailout if pass unset
-test -z $PASS && errorAndExit "No Samba password set. Exit 1." 1
+test -z ${#PASS} && errorAndExit "No Samba password set. Exit 1." 1
 
 info "$0: Configuring Samba shares ${SMB_BARCODE[${ENV}]} and ${SMB_OUTPUT[${ENV}]}"
 mkdir -p /var/lib/output /var/lib/barcode
