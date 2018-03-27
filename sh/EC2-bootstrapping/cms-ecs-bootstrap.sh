@@ -71,6 +71,11 @@ aws s3 cp s3://cms-tech-s3/ECS-bootstrap/nameservers.sh ./
 aws s3 cp s3://cms-tech-s3/ECS-bootstrap/eomfs.sh ./
 . ./eomfs.sh
 
+#Configure autofs for Samba
+aws s3 cp s3://cms-tech-s3/ECS-bootstrap/nasfs12.sh ./
+. ./nasfs12.sh
+
+
 echo
 
 echo "CMS ECS customisation DONE"
