@@ -1,13 +1,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   Editorial Container Cluster
+  Template updated: 16.3.2018
 Parameters:
   EcsAmiId:
     Type: String
     Description: >
       Specifies the AMI ID for container instances.
-      Default: amzn-ami-2017.09.i-amazon-ecs-optimized (ami-0693ed7f)
-    Default: ami-0693ed7f
+      Default: amzn-ami-2017.09.j-amazon-ecs-optimized (ami-64c4871d)
+    Default: ami-64c4871d
   EcsInstanceType:
     Type: CommaDelimitedList
     Description: >
@@ -139,7 +140,7 @@ Resources:
          export PATH=/usr/local/bin:$PATH
          yum -y install jq nfs-utils autofs tcpdump
          easy_install pip
-         pip install --upgrade awscli
+         pip install --upgrade awscli credstash
          aws configure set default.region ${AWS::Region}
          # HACK: Install package that provides setfacl
          yum -y install acl nmap-ncat
