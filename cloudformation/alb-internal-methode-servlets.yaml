@@ -200,7 +200,7 @@ Resources:
       DefaultActions:
       - Type: forward
         TargetGroupArn:
-          Ref: TargetGroupMIS
+          Ref: TargetGroupPreview
       LoadBalancerArn:
         Ref: ApplicationLoadBalancer
       Port: 80
