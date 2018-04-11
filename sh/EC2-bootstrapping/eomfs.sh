@@ -7,7 +7,7 @@
 
 . $(dirname $0)/functions.sh
 
-NFS_TIMEOUT="120"
+NFS_TIMEOUT="300"
 AUTOFS_MASTER="/etc/auto.master.d/eomfs.autofs"
 declare -A NFS_SERVER
 NFS_SERVER[dev]="methode.dev.internal.ft.com"
