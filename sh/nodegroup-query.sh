@@ -132,7 +132,7 @@ doTheActualRun() {
     while read line; do
       line=$(echo ${line} | tr -d '"')
       isHostName ${line}
-    done <  <(curl -s http://ftppm509-lvuk-uk-p/hds/nodegroup/${nodegroup}/)
+    done <  <(curl -s ${PPM_ENDPOINT}/${nodegroup}/)
   done
 }
 
