@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #USAGE
-#./nodegroup-query.sh
+#./nodegroup-query.sh [file.name|dumpall]
 
 PPM_ENDPOINT="http://ftppm509-lvuk-uk-p/hds/nodegroup"
 
@@ -182,7 +182,7 @@ reportSummary() {
 }
 
 usage() {
-  echo "USAGE: $0 file.name"
+  echo "USAGE: $0 [file.name|dumpall] "
   exit 1
 }
 
