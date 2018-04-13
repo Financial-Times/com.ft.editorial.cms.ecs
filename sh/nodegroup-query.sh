@@ -10,6 +10,7 @@ DEAD_HOSTS="0"
 UNKOWN_STATUS="0"
 TOTAL_HOSTS="0"
 
+# Can be determined by curl http://ftppm509-lvuk-uk-p/api/nodegroups/ | jq '.[]|.name'
 NODEGROUPS='
 prod_mms_nagios
 methode_webclient
