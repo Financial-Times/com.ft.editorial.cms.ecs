@@ -158,14 +158,14 @@ Resources:
       - { App: !Ref MethodeApp, Env: !FindInMap [ EnvMap, !Ref TagEnvironment, env ] }
      Port: 8080
      Protocol: HTTP
-     HealthCheckPath: /
+     HealthCheckPath: /preview-jsp/standard/pages/healthcheck/healthcheck.html
      HealthCheckProtocol: HTTP
      HealthCheckIntervalSeconds: 10
      HealthCheckTimeoutSeconds: 5
      HealthyThresholdCount: 2
      UnhealthyThresholdCount: 5
      Matcher:
-       HttpCode: '401'
+       HttpCode: '200'
      TargetGroupAttributes:
      - Key: deregistration_delay.timeout_seconds
        Value: '10'
