@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   Editorial Container Cluster
-  Template updated: 11.4.2018
+  Template updated: 10.5.2018
 Parameters:
   EcsAmiId:
     Type: String
@@ -52,8 +52,8 @@ Parameters:
     Type: Number
     Description: >
       Specifies the maximum number of instances to scale up in cluster.
-      Defaults to 6.
-    Default: '6'
+      Defaults to 8.
+    Default: '8'
   AsgDesiredSize:
     Type: Number
     Description: >
