@@ -4,6 +4,7 @@
 #
 # USAGE: ./docker-kill.sh methode-rhelper-wires-int methode-rhelper-staging-int
 #
+# CRON EXAMPLE: 1 */2 * * * /bin/bash /root/docker-kill.sh methode-rhelper-wires-int methode-rhelper-staging-int
 #
 # Maintainer: jussi.heinonen@ft.com
 # Date: 10.5.2018
