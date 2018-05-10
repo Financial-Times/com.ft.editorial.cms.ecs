@@ -75,6 +75,8 @@ aws s3 cp s3://cms-tech-s3/ECS-bootstrap/eomfs.sh ./
 aws s3 cp s3://cms-tech-s3/ECS-bootstrap/nasfs12.sh ./
 . ./nasfs12.sh
 
+#Download docker-kill.sh script
+aws s3 cp s3://cms-tech-s3/ECS-bootstrap/docker-kill.sh ./
 
 echo
 
