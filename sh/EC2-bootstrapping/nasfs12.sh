@@ -24,13 +24,13 @@ credstashLookup() {
 addCron() {
   # $1 is the directory to mount, e.g. /var/lib/eomfs/wires
   MOUNTPOINT="$1"
-  # CRON_MIN is is NFS_TIMEOUT in minutes plus 1 minute, allow autofs mount to timeout before remounting
-  CRON_MIN=$(expr ${NFS_TIMEOUT} / 60 + 1)
+  # CRON_MIN is is SMB_TIMEOUT in minutes plus 1 minute, allow autofs mount to timeout before remounting
+  CRON_MIN=$(expr ${SMB_TIMEOUT} / 60 + 1)
   # Append on crontab
   (crontab -l ; echo "*/${CRON_MIN} * * * * (cd ${MOUNTPOINT})") | crontab -
 }
 
-NFS_TIMEOUT="120"
+SMB_TIMEOUT="300"
 AUTOFS_MASTER="/etc/auto.master.d/nasfs12.autofs"
 declare -A SMB_BARCODE
 SMB_BARCODE[dev]="://nasfs12.ad.ft.com/Int/Barcode"
@@ -58,8 +58,8 @@ test -z ${#PASS} && errorAndExit "No Samba password set. Exit 1." 1
 
 info "$0: Configuring Samba shares ${SMB_BARCODE[${ENV}]} and ${SMB_OUTPUT[${ENV}]}"
 mkdir -p /var/lib/output /var/lib/barcode
-echo "/- /etc/auto.master.d/auto.output --timeout=${NFS_TIMEOUT} --verbose" > ${AUTOFS_MASTER}
-echo "/- /etc/auto.master.d/auto.barcode --timeout=${NFS_TIMEOUT} --verbose" >> ${AUTOFS_MASTER}
+echo "/- /etc/auto.master.d/auto.output --timeout=${SMB_TIMEOUT} --verbose" > ${AUTOFS_MASTER}
+echo "/- /etc/auto.master.d/auto.barcode --timeout=${SMB_TIMEOUT} --verbose" >> ${AUTOFS_MASTER}
 echo "/var/lib/output -fstype=cifs,rw,sec=ntlmssp,gid=15025,uid=57456,user=${USER},pass=${PASS} ${SMB_OUTPUT[${ENV}]}" > /etc/auto.master.d/auto.output
 echo "/var/lib/barcode -fstype=cifs,rw,sec=ntlmssp,gid=15025,uid=57456,user=${USER},pass=${PASS} ${SMB_BARCODE[${ENV}]}" > /etc/auto.master.d/auto.barcode
 
