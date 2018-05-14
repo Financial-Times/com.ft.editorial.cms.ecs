@@ -21,6 +21,15 @@ credstashLookup() {
 
 }
 
+addCron() {
+  # $1 is the directory to mount, e.g. /var/lib/eomfs/wires
+  MOUNTPOINT="$1"
+  # CRON_MIN is is NFS_TIMEOUT in minutes plus 1 minute, allow autofs mount to timeout before remounting
+  CRON_MIN=$(expr ${NFS_TIMEOUT} / 60 + 1)
+  # Append on crontab
+  (crontab -l ; echo "*/${CRON_MIN} * * * * (cd ${MOUNTPOINT})") | crontab -
+}
+
 NFS_TIMEOUT="120"
 AUTOFS_MASTER="/etc/auto.master.d/nasfs12.autofs"
 declare -A SMB_BARCODE
@@ -53,6 +62,9 @@ echo "/- /etc/auto.master.d/auto.output --timeout=${NFS_TIMEOUT} --verbose" > ${
 echo "/- /etc/auto.master.d/auto.barcode --timeout=${NFS_TIMEOUT} --verbose" >> ${AUTOFS_MASTER}
 echo "/var/lib/output -fstype=cifs,rw,sec=ntlmssp,gid=15025,uid=57456,user=${USER},pass=${PASS} ${SMB_OUTPUT[${ENV}]}" > /etc/auto.master.d/auto.output
 echo "/var/lib/barcode -fstype=cifs,rw,sec=ntlmssp,gid=15025,uid=57456,user=${USER},pass=${PASS} ${SMB_BARCODE[${ENV}]}" > /etc/auto.master.d/auto.barcode
+
+addCron /var/lib/barcode
+addCron /var/lib/output
 
 info "$0: Restarting autofs"
 service autofs restart
