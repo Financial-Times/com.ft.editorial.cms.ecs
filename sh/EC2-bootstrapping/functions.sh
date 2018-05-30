@@ -9,3 +9,7 @@ errorAndExit() {
   echo $1
   exit $2
 }
+
+createInitScriptForNetworkShares() {
+  
+}

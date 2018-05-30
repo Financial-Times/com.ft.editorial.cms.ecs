@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   Editorial Container Cluster
-  Template updated: 10.5.2018
+  Template updated: 30.5.2018
 Parameters:
   EcsAmiId:
     Type: String
@@ -153,12 +153,12 @@ Resources:
          # HACK: bootstrap.sh expects boto package to be installed, let's install it
          pip install --upgrade boto
          # Ready to run bootstrap.sh
-         bash ./bootstrap.sh -s ${Sudo} -e ${TagEnvironment}
+         chmod 755 ./bootstrap.sh && ./bootstrap.sh -s ${Sudo} -e ${TagEnvironment}
          # Upgrade latest packages
          yum upgrade -y
          # CMS ECS customisation
          aws s3 cp s3://cms-tech-s3/ECS-bootstrap/cms-ecs-bootstrap.sh ./
-         bash ./cms-ecs-bootstrap.sh ${TagEnvironment}
+         chmod 755 ./cms-ecs-bootstrap.sh && ./cms-ecs-bootstrap.sh ${TagEnvironment}
          # Bounce Instance
          init 6
   EcsInstanceAsg:
