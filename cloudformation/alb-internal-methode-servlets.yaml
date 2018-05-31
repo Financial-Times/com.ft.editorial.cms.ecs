@@ -200,7 +200,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
      Name: !Sub
-      - TG-methode-webclient-${App}-${Env}
+      - TG-methode-wclient-${App}-${Env}
       - { App: !Ref MethodeApp, Env: !FindInMap [ EnvMap, !Ref TagEnvironment, env ] }
      Port: 8080
      Protocol: HTTP
