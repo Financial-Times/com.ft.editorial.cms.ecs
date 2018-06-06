@@ -37,9 +37,10 @@ info "environment is $ENV"
 for each in ${APPS[*]}; do
   info "$0: Configuring NFS share ${each}.${NFS_SERVER[${ENV}]}"
   mkdir -p /var/lib/eomfs/${each}
-  echo "/- /etc/auto.master.d/auto.eomfs.${each} --timeout=${NFS_TIMEOUT} --verbose" >> ${AUTOFS_MASTER}
+  echo "/- /etc/auto.master.d/auto.eomfs.${each} --verbose" >> ${AUTOFS_MASTER}
   echo "/var/lib/eomfs/${each} -rw,soft,intr,bg,retrans=1,retry=0,noatime,nodiratime,timeo=${NFS_TIMEOUT} ${each}.${NFS_SERVER[${ENV}]}:/var/lib/eomfs" > /etc/auto.master.d/auto.eomfs.${each}
   addCron /var/lib/eomfs/${each}
+  createInitScriptForNetworkShare /var/lib/eomfs/${each}
 done
 
 info "$0: Restarting autofs"

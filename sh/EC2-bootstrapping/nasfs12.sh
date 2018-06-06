@@ -58,13 +58,15 @@ test -z ${#PASS} && errorAndExit "No Samba password set. Exit 1." 1
 
 info "$0: Configuring Samba shares ${SMB_BARCODE[${ENV}]} and ${SMB_OUTPUT[${ENV}]}"
 mkdir -p /var/lib/output /var/lib/barcode
-echo "/- /etc/auto.master.d/auto.output --timeout=${SMB_TIMEOUT} --verbose" > ${AUTOFS_MASTER}
-echo "/- /etc/auto.master.d/auto.barcode --timeout=${SMB_TIMEOUT} --verbose" >> ${AUTOFS_MASTER}
+echo "/- /etc/auto.master.d/auto.output --verbose" > ${AUTOFS_MASTER}
+echo "/- /etc/auto.master.d/auto.barcode --verbose" >> ${AUTOFS_MASTER}
 echo "/var/lib/output -fstype=cifs,rw,sec=ntlmssp,gid=15025,uid=57456,user=${USER},pass=${PASS} ${SMB_OUTPUT[${ENV}]}" > /etc/auto.master.d/auto.output
 echo "/var/lib/barcode -fstype=cifs,rw,sec=ntlmssp,gid=15025,uid=57456,user=${USER},pass=${PASS} ${SMB_BARCODE[${ENV}]}" > /etc/auto.master.d/auto.barcode
 
 addCron /var/lib/barcode
 addCron /var/lib/output
+createInitScriptForNetworkShare /var/lib/barcode
+createInitScriptForNetworkShare /var/lib/output
 
 info "$0: Restarting autofs"
 service autofs restart

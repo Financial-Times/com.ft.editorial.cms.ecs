@@ -33,18 +33,18 @@ createInitScriptForNetworkShare() {
 
   PNAME="%s"
   MOUNTPOINT="%s"
-  LOCKFILE=touch /var/lock/subsys/${PNAME}
+  LOCKFILE="/var/lock/subsys/${PNAME}"
 
 
   function stop () {
     rm -f ${LOCKFILE}
-    info "$0/${FUNCNAME}: deleted lock file ${LOCKFILE}"
+    logger "$0/${FUNCNAME}: deleted lock file ${LOCKFILE}"
   }
 
   function start () {
     touch ${LOCKFILE}
     (cd ${MOUNTPOINT})
-    info "$0/${FUNCNAME}: ${MOUNTPOINT} mounted"
+    logger "$0/${FUNCNAME}: ${MOUNTPOINT} mounted"
   }
   case "$1" in
     stop)
@@ -55,19 +55,21 @@ createInitScriptForNetworkShare() {
     ;;
     status)
       if [[ -f "${LOCKFILE}" ]]; then
-        info ${PNAME} running on host $(hostname)
+        logger ${PNAME} running on host $(hostname)
         exit 0
       else
-        info ${PNAME} stopped on host $(hostname)
+        logger ${PNAME} stopped on host $(hostname)
         exit 2
-      fi;;
+      fi
+    ;;
     restart)
       stop
       start
       ;;
       *)
       echo "usage: service ${PNAME} {start|stop|status|restart}"
-      exit 1;;
+      exit 1
+    ;;
   esac'
 
   if [[ "$#" -gt "0" ]]; then # Check that function is called with at least 1 argument
