@@ -172,7 +172,7 @@ Resources:
      - Key: stickiness.enabled
        Value: true
      - Key: stickiness.lb_cookie.duration_seconds
-       Value: 180
+       Value: 86400
      VpcId: !Ref VpcId
   TargetGroupFormats:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
