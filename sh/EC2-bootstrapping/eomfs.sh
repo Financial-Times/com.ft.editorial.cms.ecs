@@ -24,7 +24,7 @@ addCron() {
   # $1 is the directory to mount, e.g. /var/lib/eomfs/wires
   MOUNTPOINT="$1"
   # CRON_MIN is is NFS_TIMEOUT in minutes plus 1 minute, allow autofs mount to timeout before remounting
-  CRON_MIN=$(expr ${NFS_TIMEOUT} / 60 + 1)
+  CRON_MIN=$(expr ${NFS_TIMEOUT} / 60)
   # Append on crontab
   (crontab -l ; echo "*/${CRON_MIN} * * * * (cd ${MOUNTPOINT})") | crontab -
 }
