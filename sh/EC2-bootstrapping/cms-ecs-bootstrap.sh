@@ -31,7 +31,7 @@ echo
 
 #Adding container logging locations (CMT-1910)
 echo "Adding container logs locations"
-for s in restapi wires-mis staging-mis rhelper preview webclient checkin formats mfm image datasource prodarch portalpub postprint eventhandler adorder mms mss msis
+for s in restapi wires-mis staging-mis wires-mfm staging-mfm rhelper preview webclient checkin formats mfm image datasource prodarch portalpub postprint eventhandler adorder mms mss msis
 do
   mkdir -v /var/log/apps/methode-$s
   chown -v tomcat. /var/log/apps/methode-$s
