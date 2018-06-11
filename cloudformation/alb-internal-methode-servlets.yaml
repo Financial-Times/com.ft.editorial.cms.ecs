@@ -363,7 +363,7 @@ Resources:
       Actions:
       - Type: forward
         TargetGroupArn:
-          Ref: TargetGroupMmf
+          Ref: TargetGroupMfm
       Conditions:
       - Field: path-pattern
         Values:
