@@ -266,7 +266,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
      Name: !Sub
-      - TG-methode-emimageserv-${App}-${Env}
+      - TG-methode-imagesrv-${App}-${Env}
       - { App: !Ref MethodeApp, Env: !FindInMap [ EnvMap, !Ref TagEnvironment, env ] }
      Port: 8080
      Protocol: HTTP
