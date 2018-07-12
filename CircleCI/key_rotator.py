@@ -1,4 +1,14 @@
 #!/usr/bin/env /usr/bin/python3
+#
+# USAGE
+# 1. Create API token in CircleCI project
+#    Project Settings -> Permissions -> API Permissions -> Create Token -> Add an API token: All -> Add Token
+# 2. Add API token to CredStash table cms-methode-credential-store with key CircleCI.<projectname>.apikey
+#    EXAMPLE: credstash -t cms-methode-credential-store put -a CircleCI.com.ft.editorial.cms.servlets.mms.apikey 123asd567qwe
+# 3. Prepare runtime environment
+#    apk add --no-cache openjdk8 ca-certificates openssl bash curl python3 python3-dev py3-pip openssl-dev libffi-dev build-base
+#    pip3 install requests credstash
+
 
 import credstash
 import requests
