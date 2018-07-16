@@ -20,7 +20,7 @@ checkForHangingShares() {
   PATTERN="/bin/bash -c (cd /var/lib"
   PROC_COUNT="$(ps -ef | grep "${PATTERN}" | grep -v grep | wc -l)"
   if [[ "${PROC_COUNT}" -gt "0" ]]; then
-    for each in "$(ps -ef | grep "${PATTERN}" | grep -v grep | awk '{print $11}' | tr -d ')' | sort | uniq)"; do
+    for each in $(ps -ef | grep "${PATTERN}" | grep -v grep | awk '{print $11}' | tr -d ')' | sort | uniq ); do
       info "Trying to recover network share ${each}"
       unmountShare ${each}
       killHangingProcesses ${each}
