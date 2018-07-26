@@ -42,11 +42,12 @@ unmountShare() {
   SHARE="$1"
   SHARE_TYPE="$(mount | grep ${SHARE} | grep -v autofs | awk '{print $5}')"
   if [[ -z "${SHARE_TYPE}" ]]; then
-    error "Unable to resolve mount type for share ${SHARE}"
-  else
-    umount -f -a -t nfs -l ${SHARE} && umount -i -f -l ${SHARE}
-    info "umount commands issued for share ${SHARE}"
+    info "Unable to resolve mount type for share ${SHARE}. Assuming it is nfs"
+    SHARE_TYPE="nfs"
   fi
+  umount -f -a -t ${SHARE_TYPE} -l ${SHARE} && umount -i -f -l ${SHARE}
+  info "umount commands issued for share ${SHARE}"
+
 }
 
 # ENTRYPOINT
