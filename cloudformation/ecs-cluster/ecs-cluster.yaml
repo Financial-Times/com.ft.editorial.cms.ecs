@@ -7,8 +7,8 @@ Parameters:
     Type: String
     Description: >
       Specifies the AMI ID for container instances.
-      Default: amzn-ami-2018.03.d-amazon-ecs-optimized
-    Default: ami-0612d1ef7f8e72c06
+      Default: amzn-ami-2018.03.e-amazon-ecs-optimized
+    Default: ami-0af844a965e5738db
   EcsInstanceType:
     Type: CommaDelimitedList
     Description: >
