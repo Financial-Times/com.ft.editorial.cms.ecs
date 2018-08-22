@@ -76,7 +76,7 @@ aws s3 cp s3://cms-tech-s3/ECS-bootstrap/nasfs12.sh ./
 . ./nasfs12.sh
 
 aws s3 cp s3://cms-tech-s3/ECS-bootstrap/network-share-revival.sh ./
-(crontab -l ; echo "*/5 * * * * bash /network-share-revival.sh") | crontab -
+(crontab -l ; echo "*/2 * * * * bash /network-share-revival.sh") | crontab -
 
 #Download docker-kill.sh script
 aws s3 cp s3://cms-tech-s3/ECS-bootstrap/docker-kill.sh ./

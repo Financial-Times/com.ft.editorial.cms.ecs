@@ -53,3 +53,19 @@ unmountShare() {
 # ENTRYPOINT
 sleep $(( ( RANDOM % 10 )  + 1 )) # Add a few random sleep seconds to avoid clash with mounting tasks
 checkForHangingShares
+
+# Checking for gone away mounts
+
+for m in barcode archive staging wires output
+do
+  mount_test=$(grep -c $m /proc/mounts)
+  if [ "$mount_test" -eq 0 ]
+  then
+    info "$m mount gone away, restarting autofs"
+    service autofs restart && info "Autofs service restarted"
+    exit 0
+  else
+    info "$m mount seems fine"
+  fi
+done
+
