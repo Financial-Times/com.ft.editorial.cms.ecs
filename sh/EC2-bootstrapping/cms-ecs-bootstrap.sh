@@ -25,7 +25,7 @@ esac
 
 #Adding tomcat user (CMT-1909)
 echo "Adding tomcat user"
-adduser -c "Tomcat user" -d /var/log/apps -M -s /sbin/nologin -u 1000 -U tomcat
+adduser -c "Tomcat user" -d /var/log/apps -M -s /sbin/nologin -u 57456 -U tomcat
 id tomcat
 echo
 
