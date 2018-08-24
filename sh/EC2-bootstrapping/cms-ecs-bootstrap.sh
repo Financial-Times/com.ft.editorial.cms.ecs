@@ -35,6 +35,7 @@ for s in restapi wires-mis staging-mis wires-mfm staging-mfm rhelper preview web
 do
   mkdir -v /var/log/apps/methode-$s
   chown -v tomcat. /var/log/apps/methode-$s
+	chmod -v 777 /var/log/apps/methode-$s
 done
 echo
 
