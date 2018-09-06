@@ -84,4 +84,8 @@ aws s3 cp s3://cms-tech-s3/ECS-bootstrap/docker-kill.sh ./
 
 echo
 
+#CMT-2375 - Add local dir and cron job for lookup.xml file
+mkdir -v /var/lib/eomfs/CCMS
+(crontab -l ; echo "*/10 * * * * /usr/bin/rsync -achv --timeout=2 /var/lib/eomfs/staging/CCMS/lookup.xml /var/lib/eomfs/CCMS/") | crontab -
+
 echo "CMS ECS customisation DONE"
