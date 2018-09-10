@@ -24,7 +24,7 @@ checkForHangingShares() {
       info "Trying to recover network share ${each}"
       unmountShare ${each}
       killHangingProcesses ${each}
-      service autofs restart && info "Autofs service restarted"
+      /etc/init.d/autofs restart && info "Autofs service restarted"
       (cd ${each})
     done
   else
@@ -62,7 +62,7 @@ do
   if [ "$mount_test" -eq 0 ]
   then
     info "$m mount gone away, restarting autofs"
-    service autofs restart && info "Autofs service restarted"
+    /etc/init.d/autofs restart && info "Autofs service restarted"
     exit 0
   else
     info "$m mount seems fine"
