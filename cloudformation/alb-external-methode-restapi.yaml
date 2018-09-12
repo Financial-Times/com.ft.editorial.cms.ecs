@@ -1,11 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
-  External ALB & TGs for Methode RESTAPI
+  External ALB for Methode
 Parameters:
-  ALBName:
-    Type: String
-    Description: ALB Name
-    Default: "ALB-methode-restapi"
   SecurityGroupIds:
     Type: CommaDelimitedList
     Description: Security Groups to attach load balancer
@@ -37,12 +33,38 @@ Parameters:
       Description: SystemCode
       Type: String
       Default: methode
+  TagEnvironment:
+    Description: Tag detail for the Environment
+    Type: String
+    Default: int
+    AllowedValues:
+      - 'd'
+      - 't'
+      - 'p'
+      - 'int'
+  MethodeApp:
+    Description: Methode Application Stack
+    Type: String
+    Default: wires
+    AllowedValues:
+      - 'wires'
+      - 'staging'
+      - 'archive'
+Mappings:
+  EnvMap:
+    d:
+      env: "dev"
+    t:
+      env: "test"
+    p:
+      env: "prod"
+    int:
+      env: "int"
 Resources:
   ApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-     Name:
-       Ref: ALBName
+     Name: !Sub "${AWS::StackName}"
      Type: application
      Scheme: internet-facing
      Subnets: !Ref SubnetIds
@@ -57,64 +79,21 @@ Resources:
            Ref: TagDescription
        -
          Key: environment
-         Value: "p"
+         Value:
+           Ref: TagEnvironment
        - Key: teamDL
          Value:
            Ref: TagTeamDL
        - Key: systemCode
          Value:
            Ref: TagSystemCode
-  TargetGroupRESTAPIInt:
+  TargetGroupAdOrder:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-     Name: "TG-methode-restapi-int"
+     Name: !Sub "${AWS::StackName}-adorder"
      Port: 80
      Protocol: HTTP
-     HealthCheckPath: /api/rest
-     HealthCheckProtocol: HTTP
-     HealthCheckIntervalSeconds: 10
-     HealthCheckTimeoutSeconds: 5
-     HealthyThresholdCount: 2
-     UnhealthyThresholdCount: 4
-     Matcher:
-       HttpCode: '200'
-     TargetGroupAttributes:
-     - Key: deregistration_delay.timeout_seconds
-       Value: '60'
-     - Key: stickiness.enabled
-       Value: true
-     - Key: stickiness.lb_cookie.duration_seconds
-       Value: 86400       
-     VpcId: !Ref VpcId
-  TargetGroupRESTAPITest:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-     Name: "TG-methode-restapi-test"
-     Port: 80
-     Protocol: HTTP
-     HealthCheckPath: /api/rest
-     HealthCheckProtocol: HTTP
-     HealthCheckIntervalSeconds: 10
-     HealthCheckTimeoutSeconds: 5
-     HealthyThresholdCount: 2
-     UnhealthyThresholdCount: 4
-     Matcher:
-       HttpCode: '200'
-     TargetGroupAttributes:
-     - Key: deregistration_delay.timeout_seconds
-       Value: '60'
-     - Key: stickiness.enabled
-       Value: true
-     - Key: stickiness.lb_cookie.duration_seconds
-       Value: 86400
-     VpcId: !Ref VpcId
-  TargetGroupRESTAPIProd:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-     Name: "TG-methode-restapi-prod"
-     Port: 80
-     Protocol: HTTP
-     HealthCheckPath: /api/rest
+     HealthCheckPath: /adorder/__health
      HealthCheckProtocol: HTTP
      HealthCheckIntervalSeconds: 10
      HealthCheckTimeoutSeconds: 5
@@ -136,64 +115,27 @@ Resources:
       DefaultActions:
       - Type: forward
         TargetGroupArn:
-          Ref: TargetGroupRESTAPIInt
+          Ref: TargetGroupAdOrder
       LoadBalancerArn:
         Ref: ApplicationLoadBalancer
       Port: 443
       Protocol: HTTPS
       Certificates:
         - CertificateArn: arn:aws:acm:eu-west-1:307921801440:certificate/00b98d3d-2c61-4a52-a28c-5bbb79c04011
-  ListenerRuleRESTAPIInt:
+  ListenerRuleAdOrder:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
       Actions:
       - Type: forward
         TargetGroupArn:
-          Ref: TargetGroupRESTAPIInt
+          Ref: TargetGroupAdOrder
       Conditions:
-      - Field: host-header
-        Values:
-        - "cms-int.ft.com"  
       - Field: path-pattern
         Values:
-        - "/api/*"
+        - "/adorder*"
       ListenerArn:
         Ref: ListenerHTTPS
       Priority: 10
-  ListenerRuleRESTAPITest:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      Actions:
-      - Type: forward
-        TargetGroupArn:
-          Ref: TargetGroupRESTAPITest
-      Conditions:
-      - Field: host-header
-        Values:
-        - "cms-test.ft.com"  
-      - Field: path-pattern
-        Values:
-        - "/api/*"
-      ListenerArn:
-        Ref: ListenerHTTPS
-      Priority: 20
-  ListenerRuleRESTAPIProd:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      Actions:
-      - Type: forward
-        TargetGroupArn:
-          Ref: TargetGroupRESTAPIProd
-      Conditions:
-      - Field: host-header
-        Values:
-        - "cms.ft.com"  
-      - Field: path-pattern
-        Values:
-        - "/api/*"
-      ListenerArn:
-        Ref: ListenerHTTPS
-      Priority: 30
 Outputs:
   LoadBalancerDNSName:
     Description: Load Balancer DNS Name
