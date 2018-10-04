@@ -34,7 +34,8 @@ checkForHangingShares() {
 
 killHangingProcesses() {
   SHARE="$1"
-  ps -ef | grep "/bin/bash -c (${SHARE}" | grep -v grep | awk '{print $2}' | xargs kill -9
+  info "Killing hanging processes for ${SHARE}"
+  ps -ef | grep "/bin/bash -c (cd ${SHARE})" | grep -v grep | awk '{print $2}' | xargs kill -9
 }
 
 unmountShare() {
@@ -68,4 +69,3 @@ do
     info "$m mount seems fine"
   fi
 done
-
