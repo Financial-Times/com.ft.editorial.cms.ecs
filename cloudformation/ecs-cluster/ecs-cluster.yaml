@@ -147,7 +147,7 @@ Resources:
          yum -y install acl nmap-ncat telnet
          # Get bootstrap.sh
          aws s3 cp s3://ft-ce-repository/amazon-ftbase/releases/bootstrap.sh .
-         # HACK: get the latest Ansible version instead of old v2.1.3
+         # HACK: get ansible 2.6 due to ft-base not happy with 2.7+
          sed -i 's/ansible --upgrade/ansible==2.6/g' bootstrap.sh
          # HACK: bootstrap.sh assumes aws executable living in /usr/bin but it's not, let's symlink it
          ln -s $(which aws) /usr/bin/aws
