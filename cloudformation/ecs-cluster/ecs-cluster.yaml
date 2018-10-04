@@ -148,7 +148,7 @@ Resources:
          # Get bootstrap.sh
          aws s3 cp s3://ft-ce-repository/amazon-ftbase/releases/bootstrap.sh .
          # HACK: get the latest Ansible version instead of old v2.1.3
-         sed -i 's/ansible==[0-9]*.[0-9]*.[0-9]*/ansible/g' bootstrap.sh
+         sed -i 's/ansible --upgrade/ansible==2.6/g' bootstrap.sh
          # HACK: bootstrap.sh assumes aws executable living in /usr/bin but it's not, let's symlink it
          ln -s $(which aws) /usr/bin/aws
          # HACK: bootstrap.sh expects boto package to be installed, let's install it
