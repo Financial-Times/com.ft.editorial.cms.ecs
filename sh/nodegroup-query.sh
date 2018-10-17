@@ -3,136 +3,68 @@
 #USAGE
 #./nodegroup-query.sh
 
-PPM_ENDPOINT="http://ftppm509-lvuk-uk-p/hds/nodegroup"
+
+
+
 
 LIVE_HOSTS="0"
+IW_HOSTS="0"
+PR_HOSTS="0"
+AMZ_HOSTS="0"
+SRDF_HOSTS="0"
+UNK_HOSTS="0"
 DEAD_HOSTS="0"
-UNKOWN_STATUS="0"
+UNKNOWN_STATUS="0"
 TOTAL_HOSTS="0"
+TOTAL_NODEGROUPS="0"
 
-# Can be determined by curl http://ftppm509-lvuk-uk-p/api/nodegroups/ | jq '.[]|.name'
-NODEGROUPS='
-prod_mms_nagios
-methode_webclient
-test_nagios_reuters_iw
-int_nagios_reuters
-eominstall_server_v6
-prod_imagelibrary
-edtech_jenkins
-prod_getty_iw
-prod_getty
-test_getty
-dev_getty
-staging_methode_dev_temp_binary
-archive_methode_prod_servlets
-methodetests_prod
-archive_methode_test_servlets
-archive_methode_int_servlets
-archive_methode_dev_servlets
-archive_methode_prod_binary
-archive_methode_test_binary
-archive_methode_int_binary
-archive_methode_dev_binary
-staging_methode_int_temp_binary
-staging_methode_dev_temp_search
-staging_methode_int_temp_search
-staging_methode_cmsdev_servlets
-staging_methode_cmsdev_binary
-staging_methode_cmsdev_search
-archive_methode_prod_search
-archive_methode_test_search
-archive_methode_int_search
-archive_methode_dev_search
-mpsrender_methode_prod_search
-mpsrender_methode_test_search
-mpsrender_methode_prod_binary
-mpsrender_methode_test_binary
-mpsrender_methode_int_binary
-mpsrender_methode_prod_servlets
-netapp_srm_test
-mpsrender_methode_test_servlets
-mpsrender_methode_int_servlets
-netapp_srm_prod
-mpsrender_methode_int_search
-wires_methode_tran_servlets
-wires_methode_tran_binary
-wires_methode_tran_search
-netapp_poc_prod
-staging_methode_tran_search
-staging_methode_tran_binary
-staging_methode_tran_servlets
-staging_methode_prod_binary
-staging_methode_test_binary
-staging_methode_prod_search
-staging_methode_test_search
-staging_methode_prod_servlets
-methode_prod_webclient
-methode_test_webclient
-methode_int_webclient
-staging_methode_test_servlets
-methode_dev_webclient
-staging_methode_int_servlets
-staging_methode_int_binary
-render_methode_int_search
-staging_methode_int_search
-staging_methode_dev_servlets
-wires_methode_test_binary_lnxTest
-wires_methode_prod_search
-int_mms
-wires_methode_prod_servlets
-wires_methode_test_binary
-wires_methode_prod_binary
-wires_methode_test_servlets
-wires_methode_dev_servlets
-wires_methode_int_servlets
-wires_methode_test_search
-staging_methode_dev_binary
-staging_methode_dev_search
-methode_toolbox_prod
-wires_methode_dev_large_binary
-wires_methode_int_binary
-wires_methode_int_search
-wires_methode_dev_search
-wires_methode_dev_binary
-methode_wires_ci
-toolbox_prod
-mrs_dev
-mrs_prod
-mrs_test
-mrs_int
-mrs_int_dev
-prod_nagios_reuters_pr
-prod_nagios_reuters_iw
-development_reuters
-prod_reuters
-test_reuters
-int_reuters
-prod_mms
-test_mms
-dev_mms
-prod_nagios_iw
-tran_claro
-prod_nagios
-test_nagios
-int_nagios
-dev_nagios
-ci_nagios
-prod_claro
-test_claro
-int_claro
-dev_claro
-ci_claro
-toolbox'
 
 doTheActualRun() {
+
+  PPM_ENDPOINT="http://ftppm${PPM}-lvuk-uk-p/hds/nodegroup"
+  if [ -f /etc/puppet/puppet.conf ] || [ ${PPM} -gt 509 ]; then
+    FTPLATFORM=2
+  else
+    FTPLATFORM=1
+  fi
+  if [ "$FTPLATFORM" == "1" ]; then
+    NODEGROUPS=$(curl -s "http://ftppm${PPM}-lvuk-uk-p/api/nodegroups/" | jq '.[]|.name|@text'| sed 's/"//g')
+  else
+    NODEGROUPS=$(curl -s "https://ftppm${PPM}-lvuk-uk-p/api/nodegroups/" --insecure| jq '.[].url'|wc -l)
+  fi
+
   i=0
   for nodegroup in $NODEGROUPS; do
-    echo "============================================"
-    echo -e "\e[34mProcessing nodegroup: $nodegroup\e[0m"
+    # echo "============================================"
+    # echo -e "\e[34mProcessing nodegroup: $nodegroup\e[0m"
+    (( TOTAL_NODEGROUPS++ ))
+    if [ "$FTPLATFORM" == "1" ]; then
+      NODES=$(curl -s ${PPM_ENDPOINT}/${nodegroup}/|jq '.hosts'|jq 'keys|@csv'|tr -d '"'|tr -d '\' 2> /dev/null|tr ',' '
+')
+    else
+      TOTAL_NODEGROUPS=$NODEGROUPS
+      NODES=$(curl -s https://ftppm${PPM}-lvuk-uk-p/api/nodes/ --insecure| jq '.[]|[.nodegroup, .static_instance.name, .ec2_instance.instance_name]|@csv'| sed -e 's/"//g;s/\\//g;s/,,/,/g;s/,$//g;'|tr ',' '\n')
+    fi
+
+
     while read line; do
-      line=$(echo ${line} | tr -d '"')
+      # line=$(echo ${line} | tr -d '"')
+      if [[ ${line} == "https://"* ]]; then
+        last_ppm=${line}
+        continue
+      fi
       isHostName ${line}
-    done <  <(curl -s http://ftppm509-lvuk-uk-p/hds/nodegroup/${nodegroup}/)
+      if [[ "$?" -eq "1" ]]; then
+        echo -ne '\e[31mDECOM\e[0m '
+      else
+        echo -ne '\e[34mFOUND\e[0m '
+      fi
+      if [ "$FTPLATFORM" == "1" ]; then
+        echo ${nodegroup} ${line}
+      else
+        echo ${last_ppm} ${line}
+      fi
+    done < <(echo "$NODES")
   done
 }
 
@@ -141,6 +73,7 @@ whileMockRun() {
   while read line; do
     line=$(echo ${line} | tr -d '"')
     isHostName ${line}
+
   done <  <(cat $1)
 }
 
@@ -151,33 +84,64 @@ dumpAll() {
 }
 
 isHostName() {
-  echo $1 | grep "^ft*.\-*.\-*." >/dev/null
+  echo $1 | egrep "^ft*.\-*.\-*.|compute.internal|^ip-" >/dev/null
   if [[ "$?" -eq "0" ]]; then
-    #echo "Match found: $(echo $1 | tr -d ':')"
-    isLiveHost $(echo $1 | tr -d ':')
+    # echo "Match found: $(echo $1 | tr -d ':')"
+    isLiveHost $(echo $1 | tr -d ':') $(echo $1 |sed -e 's/ip-//;s/\.compute\.internal//g;s/\..*$//g;s/-/./g;')
+    if [[ "$?" -eq "1" ]]; then
+      return 1
+    else
+      return 0
+    fi
+  else
+    (( TOTAL_HOSTS++ ))
+    (( UNK_HOSTS++ ))
+    (( UNKNOWN_STATUS++ ))
+    return 1
   fi
 }
 
 isLiveHost() {
   (( TOTAL_HOSTS++ ))
-  ping -c 1 $1 &>/dev/null
+  HOST=$1
+  echo $1 | egrep "compute.internal|^ip-" >/dev/null
   if [[ "$?" -eq "0" ]]; then
-    echo -e "\e[34m$1 is live\e[0m"
+    HOST=$2
+  fi
+  ping -c 2 $HOST &>/dev/null
+  if [[ "$?" -eq "0" ]]; then
+    # echo -e "\e[34m$1 is live\e[0m"
     (( LIVE_HOSTS++ ))
+    if [[ $1 == *"iw-uk"* ]]; then
+      (( IW_HOSTS++ ))
+    elif [[ $1 == *"pr-uk"* ]]; then
+      (( PR_HOSTS++ ))
+    elif [[ $1 == *"uk-uk"* ]]; then
+      (( SRDF_HOSTS++ ))
+    elif [[ $1 == *"compute.internal"* ]]; then
+      (( AMZ_HOSTS++ ))
+    else
+      (( UNK_HOSTS++ ))
+    fi
+    return 0
   elif [[ "$?" -eq "1" ]]; then
-    echo -e "\e[31mUnknown host $1\e[0m"
+    #echo -e "\e[31mUnknown host $1\e[0m"
     (( DEAD_HOSTS++ ))
+    return 1
   else
-    echo "Unknown return code $? for host $1"
+    #echo "Unknown return code $? for host $1"
     (( UNKNOWN_STATUS++ ))
+    return 1
   fi
 }
 
 reportSummary() {
   echo "============================================"
+  echo -e "\e[34m${TOTAL_NODEGROUPS} nodegroups \e[0m"
+  echo -e "\e[34mPR=${PR_HOSTS} IW=${IW_HOSTS} SRDF=${SRDF_HOSTS} AMZ=${AMZ_HOSTS} UNK=${UNK_HOSTS} live hosts \e[0m"
   echo -e "\e[34m${LIVE_HOSTS}/${TOTAL_HOSTS} hosts are live \e[0m"
   echo -e "\e[31m${DEAD_HOSTS}/${TOTAL_HOSTS} hosts are dead\e[0m"
-  echo "${UNKOWN_STATUS}/${TOTAL_HOSTS} hosts reporting unknown status"
+  echo "${UNKNOWN_STATUS}/${TOTAL_HOSTS} hosts reporting unknown status"
   echo "============================================"
 }
 
@@ -188,7 +152,10 @@ usage() {
 
 if [[ ${#@} -eq "0" ]]; then
   echo "Didn't get file as an argument, doing actual run"
-  #exit
+  PPM=509
+  doTheActualRun
+elif [[ ${1} -gt 509 ]] && [[ ${1} -lt 530 ]]; then
+  PPM=${1}
   doTheActualRun
 elif [[ "${1}" == "dumpall" ]]; then
   dumpAll
