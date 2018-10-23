@@ -7,10 +7,10 @@ Parameters:
     Type: String
     Description: |
       Specifies the AMI ID for container instances.
-      amzn-ami-2018.03.g-amazon-ecs-optimized
-      eu-west-1: ami-05b65c0f6a75c1c64
+      amzn-ami-2018.03.h-amazon-ecs-optimized
+      eu-west-1: ami-066826c6a40879d75
     AllowedValues:
-      - 'ami-05b65c0f6a75c1c64'
+      - 'ami-066826c6a40879d75'
   EcsInstanceType:
     Type: CommaDelimitedList
     Description: >
