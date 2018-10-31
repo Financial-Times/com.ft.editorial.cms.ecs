@@ -49,7 +49,7 @@ Parameters:
   Sudo:
     Description: Sudo Group to be applied by default
     Type: String
-    Default: GLO-Editorial-Technology
+    Default: eng
   AsgMaxSize:
     Type: Number
     Description: >
