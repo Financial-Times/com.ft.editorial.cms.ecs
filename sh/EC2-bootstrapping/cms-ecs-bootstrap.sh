@@ -8,15 +8,19 @@
 case $1 in
 	"p")
 		export ENV="prod"
+		export EFSIP=254
 		;;
 	"int")
 		export ENV="int"
+		export EFSIP=252
 		;;
 	"t")
 		export ENV="test"
+		export EFSIP=253
 		;;
 	"d")
 		export ENV="dev"
+		export EFSIP=251
 		;;
 	"*")
 		export ENV="dev"
@@ -87,5 +91,13 @@ echo
 #CMT-2375 - Add local dir and cron job for lookup.xml file
 mkdir -v /var/lib/eomfs/CCMS
 (crontab -l ; echo "*/10 * * * * /usr/bin/rsync -achv --timeout=2 /var/lib/eomfs/staging/CCMS/lookup.xml /var/lib/eomfs/CCMS/") | crontab -
+
+#Mounting CMS EFS
+IP_ADDR=$(/usr/bin/curl -sS http://169.254.169.254/latest/meta-data/local-ipv4)
+EFS_MOUNT_IP="${IP_ADDR%\.[0-9]*}.$EFSIP"
+echo "ESF mount point IP: $EFS_MOUNT_IP"
+mkdir -pv /var/lib/efs
+echo "/var/lib/efs -rw,nfsvers=4.1,rsize=1048576,wsize=1048576,soft,timeo=600,retrans=2 $EFS_MOUNT_IP:/" > /etc/auto.master.d/auto.efs
+echo "/- /etc/auto.master.d/auto.efs --verbose" > /etc/auto.master.d/efs.autofs
 
 echo "CMS ECS customisation DONE"
