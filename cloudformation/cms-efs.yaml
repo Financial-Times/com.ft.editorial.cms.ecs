@@ -1,0 +1,113 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  CMS Elastic File System
+Parameters:
+  SecurityGroupIds:
+    Type: List<AWS::EC2::SecurityGroup::Id>
+    Description: Security Groups for EFS
+    Default: "sg-e1875c99,sg-15be656d"
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Private subnets for EFS
+    Default: "subnet-48bd0c01,subnet-0839cd53,subnet-e378d084"
+  SubnetAddress:
+    Type: CommaDelimitedList
+    Description: Subnet network addresses, must correspond to values and order of selected subnets
+    Default: "10.172.136,10.172.137,10.172.138"
+  VpcId:
+    Type: List<AWS::EC2::VPC::Id>
+    Description: ID of an existing VPC in which to create EFS in.
+    Default: vpc-729f2815
+  TagDescription:
+    Description: Tag detail for the Description
+    Type: String
+    Default: CMS EFS
+  TagTeamDL:
+    Description: Tag detail for the TeamDL
+    ConstraintDescription: There must be a valid email address for the TeamDL Topic
+    Type: String
+    AllowedPattern: ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+    Default: team.cms@ft.com
+  TagSystemCode:
+      Description: SystemCode
+      Type: String
+      Default: methode
+  TagEnvironment:
+    Description: Tag detail for the Environment
+    Type: String
+    Default: int
+    AllowedValues:
+      - 'd'
+      - 't'
+      - 'p'
+      - 'int'
+Mappings:
+  EnvMap:
+    d:
+      env: "dev"
+    int:
+      env: "int"
+    t:
+      env: "test"
+    p:
+      env: "prod"
+  IPMap:
+    d:
+      envip: 251
+    int:
+      envip: 252
+    t:
+      envip: 253
+    p:
+      envip: 254
+Resources:
+  CMSEFS:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      Encrypted: No
+      PerformanceMode: generalPurpose
+      FileSystemTags:
+        -
+         Key: Name
+         Value: !Sub "${AWS::StackName}"
+        -
+         Key: environment
+         Value: !Ref TagEnvironment
+        - 
+         Key: teamDL
+         Value: !Ref TagTeamDL
+        -
+         Key: systemCode
+         Value: !Ref TagSystemCode
+        -
+         Key: Description
+         Value: !Sub
+          - "${Descr} ${Env}"
+          - { Descr: !Ref TagDescription, Env: !FindInMap [ EnvMap, !Ref TagEnvironment, env ] }
+  CMSEFSMountTargetA:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref CMSEFS
+      SubnetId: !Select [ 0, !Ref SubnetIds ]
+      IpAddress: !Sub
+        - "${netaddr}.${ipaddr}"
+        - { netaddr: !Select [ 0, !Ref SubnetAddress ], ipaddr: !FindInMap [ IPMap, !Ref TagEnvironment, envip ] }
+      SecurityGroups: !Ref SecurityGroupIds
+  CMSEFSMountTargetB:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref CMSEFS
+      SubnetId: !Select [ 1, !Ref SubnetIds ]
+      IpAddress: !Sub
+        - "${netaddr}.${ipaddr}"
+        - { netaddr: !Select [ 1, !Ref SubnetAddress ], ipaddr: !FindInMap [ IPMap, !Ref TagEnvironment, envip ] }
+      SecurityGroups: !Ref SecurityGroupIds
+  CMSEFSMountTargetC:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref CMSEFS
+      IpAddress: !Sub
+        - "${netaddr}.${ipaddr}"
+        - { netaddr: !Select [ 2, !Ref SubnetAddress ], ipaddr: !FindInMap [ IPMap, !Ref TagEnvironment, envip ] }
+      SubnetId: !Select [ 2, !Ref SubnetIds ]
+      SecurityGroups: !Ref SecurityGroupIds
