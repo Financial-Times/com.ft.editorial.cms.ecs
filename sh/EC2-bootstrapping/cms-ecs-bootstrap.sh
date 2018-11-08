@@ -97,7 +97,16 @@ IP_ADDR=$(/usr/bin/curl -sS http://169.254.169.254/latest/meta-data/local-ipv4)
 EFS_MOUNT_IP="${IP_ADDR%\.[0-9]*}.$EFSIP"
 echo "ESF mount point IP: $EFS_MOUNT_IP"
 mkdir -pv /var/lib/efs
-echo "/var/lib/efs -rw,nfsvers=4.1,rsize=1048576,wsize=1048576,soft,timeo=600,retrans=2 $EFS_MOUNT_IP:/" > /etc/auto.master.d/auto.efs
-echo "/- /etc/auto.master.d/auto.efs --verbose" > /etc/auto.master.d/efs.autofs
+echo "## CMS EFS" >> /etc/fstab
+echo -e "$EFS_MOUNT_IP:/\t/var/lib/efs\tnfs4\trw,nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport\t0\t0" >> /etc/fstab
+
+mount -v /var/lib/efs
+
+for mapp in archive staging wires
+do
+	mkdir -pv /var/lib/efs/$mapp
+	chown -v 57456:15025 /var/lib/efs/$mapp
+	chmod -v 775 /var/lib/efs/$mapp
+done
 
 echo "CMS ECS customisation DONE"
