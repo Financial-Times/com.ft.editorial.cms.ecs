@@ -416,6 +416,28 @@ Resources:
      - Key: stickiness.enabled
        Value: true
      VpcId: !Ref VpcId
+  TargetGroupPostPrint:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+     Name: !Sub
+      - TG-methode-pstprint-${App}-${Env}
+      - { App: !Ref MethodeApp, Env: !FindInMap [ EnvMap, !Ref TagEnvironment, env ] }
+     Port: 8080
+     Protocol: HTTP
+     HealthCheckPath: /postprint/servlet/postprint
+     HealthCheckProtocol: HTTP
+     HealthCheckIntervalSeconds: 10
+     HealthCheckTimeoutSeconds: 5
+     HealthyThresholdCount: 2
+     UnhealthyThresholdCount: 5
+     Matcher:
+       HttpCode: '200'
+     TargetGroupAttributes:
+     - Key: deregistration_delay.timeout_seconds
+       Value: '10'
+     - Key: stickiness.enabled
+       Value: true
+     VpcId: !Ref VpcId
   ListenerHTTP:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -637,6 +659,20 @@ Resources:
       ListenerArn:
         Ref: ListenerHTTP
       Priority: 150
+  ListenerPostPrint:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: TargetGroupPostPrint
+      Conditions:
+      - Field: path-pattern
+        Values:
+        - "/postprint*"
+      ListenerArn:
+        Ref: ListenerHTTP
+      Priority: 160
 Outputs:
   LoadBalancerDNSName:
     Description: Load Balancer DNS Name
