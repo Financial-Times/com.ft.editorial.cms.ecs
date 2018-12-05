@@ -3,11 +3,19 @@
 # USAGE
 # 1. Create API token in CircleCI project
 #    Project Settings -> Permissions -> API Permissions -> Create Token -> Add an API token: All -> Add Token
+#
 # 2. Add API token to CredStash table cms-methode-credential-store with key CircleCI.<projectname>.apikey
 #    EXAMPLE: credstash -t cms-methode-credential-store put -a CircleCI.com.ft.editorial.cms.servlets.mms.apikey 123asd567qwe
+#
 # 3. Prepare runtime environment
+#
+#    Option 1. Install depenencies
 #    apk add --no-cache openjdk8 ca-certificates openssl bash curl python3 python3-dev py3-pip openssl-dev libffi-dev build-base
 #    pip3 install requests credstash
+#
+#    Option 2. Use key-rotator docker image. Include all dependencies.
+#    ECR login: sudo $(aws ecr --region eu-west-1 get-login --no-include-email)
+#    Docker command: sudo docker run -v ${HOME}/.aws:/root/.aws -t 307921801440.dkr.ecr.eu-west-1.amazonaws.com/key-rotator:1
 
 
 import credstash
