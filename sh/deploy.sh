@@ -15,15 +15,15 @@
 source $(dirname $0)/common.sh || echo "$0: Failed to source common.sh"
 processCliArgs $@
 
-test -z ${ARGS[--cluster_name]} && ARGS[--cluster_name]=$1
+test -z ${ARGS[--ecs_cluster]} && ARGS[--ecs_cluster]=$1
 test -z ${ARGS[--ecs_service]} && ARGS[--ecs_service]=$2
 test -z ${ARGS[--image_name]} && ARGS[--image_name]=${3:-${CIRCLE_PROJECT_REPONAME}}
 test -z ${ARGS[--image_version]} && ARGS[--image_version]=${4:-${CIRCLE_BUILD_NUM}}
-test -z ${ARGS[--aws_account_id]} && ARGS[--aws_account_id]${5:-"307921801440"}
+test -z ${ARGS[--aws_account_id]} && ARGS[--aws_account_id]=${5:-"307921801440"}
 test -z ${ARGS[--aws_region]} && ARGS[--aws_region]=${6:-"eu-west-1"}
 
 deploy() {
-    if [[ $(aws ecs update-service --cluster ${ARGS[--cluster_name]} --service ${ARGS[--ecs_service]} --task-definition $revision \
+    if [[ $(aws ecs update-service --cluster ${ARGS[--ecs_cluster]} --service ${ARGS[--ecs_service]} --task-definition $revision \
             --output text --query 'service.taskDefinition') != $revision ]]; then
         echo "Error updating service."
         return 1
@@ -46,7 +46,7 @@ make_task_definition(){
 		}
 	]'
 
-	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--aws_account_id]} ${ARGS[--aws_region]} ${ARGS[--image_name]} ${ARGS[--image_version]}})
+	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--aws_account_id]} ${ARGS[--aws_region]} ${ARGS[--image_name]} ${ARGS[--image_version]})
 }
 
 register_task_definition() {
@@ -59,7 +59,8 @@ register_task_definition() {
     fi
 
 }
-
+#printCliArgs
+#exit 0
 make_task_definition
 register_task_definition
 deploy
