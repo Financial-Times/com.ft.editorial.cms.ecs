@@ -17,10 +17,10 @@ processCliArgs $@
 
 test -z ${ARGS[--ecs_cluster]} && ARGS[--ecs_cluster]=$1
 test -z ${ARGS[--ecs_service]} && ARGS[--ecs_service]=$2
-test -z ${ARGS[--image_name]} && ARGS[--image_name]=${3:-${CIRCLE_PROJECT_REPONAME}}
-test -z ${ARGS[--image_version]} && ARGS[--image_version]=${4:-${CIRCLE_BUILD_NUM}}
-test -z ${ARGS[--aws_account_id]} && ARGS[--aws_account_id]=${5:-"307921801440"}
-test -z ${ARGS[--aws_region]} && ARGS[--aws_region]=${6:-"eu-west-1"}
+test -z ${ARGS[--image_name]} && ARGS[--image_name]=${CIRCLE_PROJECT_REPONAME}
+test -z ${ARGS[--image_version]} && ARGS[--image_version]=${CIRCLE_BUILD_NUM}
+test -z ${ARGS[--aws_account_id]} && ARGS[--aws_account_id]="307921801440"
+test -z ${ARGS[--aws_region]} && ARGS[--aws_region]="eu-west-1"
 
 deploy() {
     if [[ $(aws ecs update-service --cluster ${ARGS[--ecs_cluster]} --service ${ARGS[--ecs_service]} --task-definition $revision \
