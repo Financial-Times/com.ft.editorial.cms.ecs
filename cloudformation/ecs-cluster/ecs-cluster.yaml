@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   Editorial Container Cluster
-  Template updated: 12.2.2019
+  Template updated: 18.2.2019
 Parameters:
   EcsAmiId:
     Type: String
@@ -15,12 +15,13 @@ Parameters:
     Type: CommaDelimitedList
     Description: >
       Specifies the EC2 instance type for your container instances.
-      Defaults to t2.small
+      Defaults to t2.medium
     Default: t2.medium
     AllowedValues:
-      - t2.small
-      - t2.medium
-      - m3.medium
+      - t2.small    #$0.025 per Hour
+      - t2.medium   #$0.050 per Hour
+      - t3.large    #$0.0912 per Hour
+      - r5.large    #$0.107 per Hour
   SubnetType:
     Type: String
     Description: Select type of subnet to deploy to
