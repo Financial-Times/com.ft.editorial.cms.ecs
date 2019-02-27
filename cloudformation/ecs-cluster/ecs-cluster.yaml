@@ -1,25 +1,25 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   Editorial Container Cluster
-  Template updated: 18.2.2019
+  Template updated: 27.2.2019
 Parameters:
   EcsAmiId:
     Type: String
     Description: |
       Specifies the AMI ID for container instances.
-      amzn-ami-2018.03.m-amazon-ecs-optimized
-      eu-west-1: ami-0dc3fa046ca0e570c
+      amzn-ami-2018.03.n-amazon-ecs-optimized
+      eu-west-1: ami-0150b2ec056e3c3c1
     AllowedValues:
-      - 'ami-0dc3fa046ca0e570c'
+      - 'ami-0150b2ec056e3c3c1'
   EcsInstanceType:
     Type: CommaDelimitedList
     Description: >
       Specifies the EC2 instance type for your container instances.
-      Defaults to t2.medium
-    Default: t2.medium
+      Defaults to t3.medium
+    Default: t3.medium
     AllowedValues:
-      - t2.small    #$0.025 per Hour
-      - t2.medium   #$0.050 per Hour
+      - t3.small    #$0.025 per Hour
+      - t3.medium   #$0.050 per Hour
       - t3.large    #$0.0912 per Hour
       - r5.large    #$0.107 per Hour
   SubnetType:
