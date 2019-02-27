@@ -59,7 +59,7 @@ register_task_definition() {
     fi
 
 }
-#printCliArgs
+printCliArgs
 #exit 0
 make_task_definition
 register_task_definition
