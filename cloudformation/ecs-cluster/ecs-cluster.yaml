@@ -18,8 +18,8 @@ Parameters:
       Defaults to t3.medium
     Default: t3.medium
     AllowedValues:
-      - t3.small    #$0.025 per Hour
-      - t3.medium   #$0.050 per Hour
+      - t3.small    #$0.0228 per Hour
+      - t3.medium   #$0.0456 per Hour
       - t3.large    #$0.0912 per Hour
       - r5.large    #$0.107 per Hour
   SubnetType:
