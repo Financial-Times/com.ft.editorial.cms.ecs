@@ -11,6 +11,7 @@ Parameters:
       eu-west-1: ami-0150b2ec056e3c3c1
     AllowedValues:
       - 'ami-0150b2ec056e3c3c1'
+      - 'ami-0dc3fa046ca0e570c'
   EcsInstanceType:
     Type: CommaDelimitedList
     Description: >
