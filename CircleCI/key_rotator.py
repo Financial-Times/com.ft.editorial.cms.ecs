@@ -13,9 +13,18 @@
 #    apk add --no-cache openjdk8 ca-certificates openssl bash curl python3 python3-dev py3-pip openssl-dev libffi-dev build-base
 #    pip3 install requests credstash
 #
-#    Option 2. Use key-rotator docker image. Include all dependencies.
-#    ECR login: sudo $(aws ecr --region eu-west-1 get-login --no-include-email)
-#    Docker command: sudo docker run -v ${HOME}/.aws:/root/.aws -t 307921801440.dkr.ecr.eu-west-1.amazonaws.com/key-rotator:1
+#    Option 2. Use key-rotator docker image. Include all dependencies. Run these commands on any ECS cluster node
+#    ECR login: $(aws ecr --region eu-west-1 get-login --no-include-email)
+#    Add credstash credentials to temp file eg. /tmp/credentials
+#       [default]
+#       aws_access_key_id = whatever
+#       aws_secret_access_key = everwhat
+#    Run container: docker run -v /tmp:/root/.aws -it 307921801440.dkr.ecr.eu-west-1.amazonaws.com/key-rotator:1 /bin/bash
+#    Update AWS credentials in credstash:
+#       credstash -r eu-west-1 -t cms-methode-credential-store put -a CircleCI.AWS.key value
+#       credstash -r eu-west-1 -t cms-methode-credential-store put -a CircleCI.AWS.secret value
+#    Update CircleCI projects
+#       ./key_rotator.py
 
 
 import credstash
