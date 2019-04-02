@@ -21,6 +21,8 @@ test -z ${ARGS[--image_name]} && ARGS[--image_name]=${CIRCLE_PROJECT_REPONAME}
 test -z ${ARGS[--image_version]} && ARGS[--image_version]=${CIRCLE_BUILD_NUM}
 test -z ${ARGS[--aws_account_id]} && ARGS[--aws_account_id]="307921801440"
 test -z ${ARGS[--aws_region]} && ARGS[--aws_region]="eu-west-1"
+test -z ${ARGS[--splunk_index]} && ARGS[--splunk_index]="rankings-dev"
+test -z ${ARGS[--splunk_source]} && ARGS[--splunk_index]="rankings"
 
 deploy() {
     if [[ $(aws ecs update-service --cluster ${ARGS[--ecs_cluster]} --service ${ARGS[--ecs_service]} --task-definition $revision \
@@ -49,6 +51,36 @@ make_task_definition(){
 	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--aws_account_id]} ${ARGS[--aws_region]} ${ARGS[--image_name]} ${ARGS[--image_version]})
 }
 
+make_task_definition_with_splunk(){
+	task_template='[
+		{
+			"name": "%s",
+			"image": "%s.dkr.ecr.%s.amazonaws.com/%s:%s",
+			"essential": true,
+			"memory": 256,
+			"cpu": 10,
+			"portMappings": [
+				{
+					"containerPort": 80
+				}
+			],
+			"logConfiguration": {
+				"logDriver": "splunk",
+				"options": {
+					"splunk-url": "https://http-inputs-financialtimes.splunkcloud.com",
+					"splunk-token": "%s",
+					"splunk-index": "%s",
+					"splunk-source": "%s",
+					"splunk-insecureskipverify": "true",
+					"splunk-format": "raw"
+				}
+			}
+		}
+	]'
+
+	task_def=$(printf "$task_template" ${ARGS[--ecs_service]} ${ARGS[--aws_account_id]} ${ARGS[--aws_region]} ${ARGS[--image_name]} ${ARGS[--image_version]} ${ARGS[--splunk_key]} ${ARGS[--splunk_index]} ${ARGS[--splunk_source]})
+}
+
 register_task_definition() {
     echo "Registering task definition ${task_def}"
     if revision=$(aws ecs register-task-definition --container-definitions "$task_def" --family "${ARGS[--ecs_service]}" --output text --query 'taskDefinition.taskDefinitionArn'); then
@@ -61,6 +93,11 @@ register_task_definition() {
 }
 #printCliArgs
 #exit 0
-make_task_definition
+if [[ -z ${ARGS[--splunk_key]} ]]; then
+	make_task_definition
+else
+	make_task_definition_with_splunk
+fi
 register_task_definition
+
 deploy
