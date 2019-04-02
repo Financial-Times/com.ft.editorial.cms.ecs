@@ -21,7 +21,7 @@ test -z ${ARGS[--image_name]} && ARGS[--image_name]=${CIRCLE_PROJECT_REPONAME}
 test -z ${ARGS[--image_version]} && ARGS[--image_version]=${CIRCLE_BUILD_NUM}
 test -z ${ARGS[--aws_account_id]} && ARGS[--aws_account_id]="307921801440"
 test -z ${ARGS[--aws_region]} && ARGS[--aws_region]="eu-west-1"
-test -z ${ARGS[--splunk_index]} && ARGS[--splunk_index]="rankings-dev"
+test -z ${ARGS[--splunk_index]} && ARGS[--splunk_index]="rankings"
 test -z ${ARGS[--splunk_source]} && ARGS[--splunk_source]="rankings"
 
 deploy() {
