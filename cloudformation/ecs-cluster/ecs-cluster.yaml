@@ -1,16 +1,16 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   Editorial Container Cluster
-  Template updated: 25.3.2019
+  Template updated: 24.7.2019
 Parameters:
   EcsAmiId:
     Type: String
     Description: |
       Specifies the AMI ID for container instances.
-      amzn-ami-2018.03.o-amazon-ecs-optimized
-      eu-west-1: ami-00921cd1ce43d567a
+      amazon/amzn-ami-2018.03.v-amazon-ecs-optimized
+      eu-west-1: ami-02b9d5ef54d57fb7d
     AllowedValues:
-      - 'ami-00921cd1ce43d567a'
+      - 'ami-02b9d5ef54d57fb7d'
   EcsInstanceType:
     Type: CommaDelimitedList
     Description: >
