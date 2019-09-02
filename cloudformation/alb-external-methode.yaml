@@ -61,7 +61,7 @@ Resources:
      Tags:
        -
          Key: Name
-         Value: !Sub "CMS-${AWS::StackName}"
+         Value: !Sub "${AWS::StackName}"
        -
          Key: Description
          Value:
