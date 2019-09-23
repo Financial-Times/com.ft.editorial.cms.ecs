@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   Editorial Container Cluster
-  Template updated: 2.9.2019
+  Template updated: 23.9.2019
 Parameters:
   EcsAmiId:
     Type: String
