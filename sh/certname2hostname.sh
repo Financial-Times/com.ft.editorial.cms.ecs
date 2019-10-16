@@ -30,9 +30,9 @@ displayInstructions() {
     1. On Puppet Master ${HOSTNAME} run command 
         /usr/local/bin/puppet cert clean ${certname}
     2. Copy openssl downgrade package across 
-        scp /opt/openssl-1.0.1e-48.el6_8.3.x86_64.rpm $(who | head -1 | awk '{print $1}')@${CH_ARRAY[${certname_short}]}:/tmp
+        scp /opt/openssl-1.0.1e-48.el6_8.3.x86_64.rpm $(who | tail -1 | awk '{print $1}')@${CH_ARRAY[${certname_short}]}:/tmp
     3. Renew certificate on Puppet Agent
-        ssh $(who | head -1 | awk '{print $1}')@${CH_ARRAY[${certname_short}]} && \
+        ssh $(who | tail -1 | awk '{print $1}')@${CH_ARRAY[${certname_short}]}
         sudo su -
         yum downgrade -y /tmp/openssl-1.0.1e-48.el6_8.3.x86_64.rpm && rm -rf /etc/puppetlabs/puppet/ssl/* && puppet agent -t
     "
