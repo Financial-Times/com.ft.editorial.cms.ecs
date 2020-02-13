@@ -13,6 +13,7 @@ HOSTLIST=""
 OUTPUT_FILE="live.nodes.csv"
 
 # Can be determined by curl http://ftppm509-lvuk-uk-p/api/nodegroups/ | jq '.[]|.name'
+
 NODEGROUPS='
 methode_webclient
 	test_nagios_reuters_iw
@@ -92,7 +93,8 @@ methode_webclient
 doTheActualRun() {
   i=0
   echo > ${OUTPUT_FILE}
-  for nodegroup in $NODEGROUPS; do
+  #for nodegroup in $NODEGROUPS; do
+  for nodegroup in $(curl -s http://ftppm509-lvuk-uk-p/api/nodegroups/ | jq '.[]|.name' | tr -d '"'); do
     echo "============================================"
     echo -e "\e[34mProcessing nodegroup: $nodegroup\e[0m"
     while read line; do

@@ -1,16 +1,16 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   Editorial Container Cluster
-  Template updated: 6.1.2020
+  Template updated: 13.2.2020
 Parameters:
   EcsAmiId:
     Type: String
     Description: |
       Specifies the AMI ID for container instances.
-      amzn-ami-2018.03.20191212-amazon-ecs-optimized
-      eu-west-1: ami-0fc0477ac55200d28
+      amzn-ami-2018.03.20200205-amazon-ecs-optimized
+      eu-west-1: ami-08a58669818b0c3ca
     AllowedValues:
-      - 'ami-0fc0477ac55200d28'
+      - 'ami-08a58669818b0c3ca'
   EcsInstanceType:
     Type: CommaDelimitedList
     Description: >
@@ -142,7 +142,8 @@ Resources:
          echo ECS_CLUSTER=${AWS::StackName} >> /etc/ecs/ecs.config
          export PATH=/usr/local/bin:$PATH
          yum -y install jq nfs-utils autofs tcpdump cifs-utils lsof python27-pip rsync
-         pip install --upgrade awscli credstash
+         pip install --upgrade awscli 
+         pip install credstash==1.16.1
          aws configure set default.region ${AWS::Region}
          # HACK: Install package that provides setfacl
          yum -y install acl nmap-ncat telnet
