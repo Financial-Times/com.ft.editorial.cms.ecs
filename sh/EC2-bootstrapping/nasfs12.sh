@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 #
-# Configure autofs for nasfs12.ad.ft.com Samba shares
+# Configure autofs for nasfs12.ad.ft.com / FSx Samba shares
 #
 # Maintainer: jussi.heinonen@ft.com
 # Date: 27.3.2018
+# Updated: 6.3.2020
 
 . $(dirname $0)/functions.sh
 
@@ -33,19 +34,21 @@ addCron() {
 SMB_TIMEOUT="300"
 AUTOFS_MASTER="/etc/auto.master.d/nasfs12.autofs"
 declare -A SMB_BARCODE
-SMB_BARCODE[dev]="://nasfs12.ad.ft.com/Int/Barcode"
 SMB_BARCODE[int]="://nasfs12.ad.ft.com/Int/Barcode"
 SMB_BARCODE[test]="://nasfs12.ad.ft.com/Test/Barcode"
 SMB_BARCODE[prod]="://nasfs12.ad.ft.com/Production/Barcode"
+declare -A FSX_BARCODE
+FSX_BARCODE[int]="://amznfsxon2iuvfb.ad.ft.com/share/Int/Barcode"
+FSX_BARCODE[test]="://amznfsxon2iuvfb.ad.ft.com/share/Test/Barcode"
+FSX_BARCODE[prod]="://amznfsxon2iuvfb.ad.ft.com/share/Production/Barcode"
 declare -A SMB_OUTPUT
-SMB_OUTPUT[dev]="://nasfs12.ad.ft.com/Development/Methode_Input"
 SMB_OUTPUT[int]="://nasfs12.ad.ft.com/Int/Methode_Input"
 SMB_OUTPUT[test]="://nasfs12.ad.ft.com/Test/Methode_Input"
 SMB_OUTPUT[prod]="://nasfs12.ad.ft.com/Production/Methode_Input"
 
 
-# Set environment dev in case it's not been set
-test -z $ENV && export ENV="dev"
+# Set environment int in case it's not been set
+test -z $ENV && export ENV="int"
 info "environment is $ENV"
 
 USER=$(credstashLookup com.ft.editorial.methode.samba.username)
@@ -56,16 +59,20 @@ test -z ${#USER} && errorAndExit "No Samba username set. Exit 1." 1
 # Bailout if pass unset
 test -z ${#PASS} && errorAndExit "No Samba password set. Exit 1." 1
 
-info "$0: Configuring Samba shares ${SMB_BARCODE[${ENV}]} and ${SMB_OUTPUT[${ENV}]}"
-mkdir -p /var/lib/output /var/lib/barcode
+info "$0: Configuring Samba shares ${SMB_BARCODE[${ENV}]}, ${FSX_BARCODE[${ENV}]} and ${SMB_OUTPUT[${ENV}]}"
+mkdir -p /var/lib/output /var/lib/barcode /var/lib/barcodefsx
 echo "/- /etc/auto.master.d/auto.output --verbose" > ${AUTOFS_MASTER}
+echo "/- /etc/auto.master.d/auto.barcodefsx --verbose" >> ${AUTOFS_MASTER}
 echo "/- /etc/auto.master.d/auto.barcode --verbose" >> ${AUTOFS_MASTER}
 echo "/var/lib/output -fstype=cifs,rw,sec=ntlmssp,gid=15025,uid=57456,user=${USER},pass=${PASS},vers=2.1 ${SMB_OUTPUT[${ENV}]}" > /etc/auto.master.d/auto.output
 echo "/var/lib/barcode -fstype=cifs,rw,sec=ntlmssp,gid=15025,uid=57456,user=${USER},pass=${PASS},vers=2.1 ${SMB_BARCODE[${ENV}]}" > /etc/auto.master.d/auto.barcode
+echo "/var/lib/barcodefsx -fstype=cifs,rw,sec=ntlmssp,gid=15025,uid=57456,user=${USER},pass=${PASS},vers=2.1 ${FSX_BARCODE[${ENV}]}" > /etc/auto.master.d/auto.barcodefsx
 
 addCron /var/lib/barcode
+addCron /var/lib/barcodefsx
 addCron /var/lib/output
 createInitScriptForNetworkShare /var/lib/barcode
+createInitScriptForNetworkShare /var/lib/barcodefsx
 createInitScriptForNetworkShare /var/lib/output
 
 info "$0: Restarting autofs"
