@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 #
 # Configure autofs for nasfs12.ad.ft.com / FSx Samba shares
+# 
+# NOTE: After updating this file upload it to 
+# https://s3.console.aws.amazon.com/s3/buckets/cms-tech-s3/ECS-bootstrap/?region=eu-west-1
+# Bucket lives in ft-tech-editorial-prod account
+# Then re-run bootstrap process by rebuilding cluster
 #
 # Maintainer: jussi.heinonen@ft.com
 # Date: 27.3.2018
-# Updated: 6.3.2020
+# Updated: 20.3.2020
 
 . $(dirname $0)/functions.sh
 
@@ -45,7 +50,14 @@ declare -A SMB_OUTPUT
 SMB_OUTPUT[int]="://nasfs12.ad.ft.com/Int/Methode_Input"
 SMB_OUTPUT[test]="://nasfs12.ad.ft.com/Test/Methode_Input"
 SMB_OUTPUT[prod]="://nasfs12.ad.ft.com/Production/Methode_Input"
-
+declare -A FSX_OUTPUT
+FSX_OUTPUT[int]="://amznfsxon2iuvfb.ad.ft.com/share/Int/Methode_Input"
+FSX_OUTPUT[test]="://amznfsxon2iuvfb.ad.ft.com/share/Test/Methode_Input"
+FSX_OUTPUT[prod]="://amznfsxon2iuvfb.ad.ft.com/share/Production/Methode_Input"
+declare -A FSX_FT
+FSX_FT[int]="://amznfsxnw7oucfb.ad.ft.com/share/Dev"
+FSX_FT[test]="://amznfsxnw7oucfb.ad.ft.com/share/Test"
+FSX_FT[prod]="://amznfsxnw7oucfb.ad.ft.com/share/Production"
 
 # Set environment int in case it's not been set
 test -z $ENV && export ENV="int"
@@ -59,21 +71,29 @@ test -z ${#USER} && errorAndExit "No Samba username set. Exit 1." 1
 # Bailout if pass unset
 test -z ${#PASS} && errorAndExit "No Samba password set. Exit 1." 1
 
-info "$0: Configuring Samba shares ${SMB_BARCODE[${ENV}]}, ${FSX_BARCODE[${ENV}]} and ${SMB_OUTPUT[${ENV}]}"
-mkdir -p /var/lib/output /var/lib/barcode /var/lib/barcodefsx
+info "$0: Configuring Samba shares ${SMB_BARCODE[${ENV}]}, ${FSX_BARCODE[${ENV}]}, ${SMB_OUTPUT[${ENV}]} and ${FSX_OUTPUT[${ENV}]}"
+mkdir -p /var/lib/output /var/lib/outputfsx /var/lib/barcode /var/lib/barcodefsx /var/lib/ftfsx
 echo "/- /etc/auto.master.d/auto.output --verbose" > ${AUTOFS_MASTER}
 echo "/- /etc/auto.master.d/auto.barcodefsx --verbose" >> ${AUTOFS_MASTER}
 echo "/- /etc/auto.master.d/auto.barcode --verbose" >> ${AUTOFS_MASTER}
+echo "/- /etc/auto.master.d/auto.outputfsx --verbose" >> ${AUTOFS_MASTER}
+echo "/- /etc/auto.master.d/auto.ftfsx --verbose" >> ${AUTOFS_MASTER}
 echo "/var/lib/output -fstype=cifs,rw,sec=ntlmssp,gid=15025,uid=57456,user=${USER},pass=${PASS},vers=2.1 ${SMB_OUTPUT[${ENV}]}" > /etc/auto.master.d/auto.output
 echo "/var/lib/barcode -fstype=cifs,rw,sec=ntlmssp,gid=15025,uid=57456,user=${USER},pass=${PASS},vers=2.1 ${SMB_BARCODE[${ENV}]}" > /etc/auto.master.d/auto.barcode
 echo "/var/lib/barcodefsx -fstype=cifs,rw,sec=ntlmssp,gid=15025,uid=57456,user=${USER},pass=${PASS},vers=2.1 ${FSX_BARCODE[${ENV}]}" > /etc/auto.master.d/auto.barcodefsx
+echo "/var/lib/outputfsx -fstype=cifs,rw,sec=ntlmssp,gid=15025,uid=57456,user=${USER},pass=${PASS},vers=2.1 ${FSX_OUTPUT[${ENV}]}" > /etc/auto.master.d/auto.outputfsx
+echo "/var/lib/ftfsx -fstype=cifs,rw,sec=ntlmssp,gid=15025,uid=57456,user=${USER},pass=${PASS},vers=2.1 ${FSX_FT[${ENV}]}" > /etc/auto.master.d/auto.ftfsx
 
 addCron /var/lib/barcode
 addCron /var/lib/barcodefsx
 addCron /var/lib/output
+addCron /var/lib/outputfsx
+addCron /var/lib/ftfsx
 createInitScriptForNetworkShare /var/lib/barcode
 createInitScriptForNetworkShare /var/lib/barcodefsx
 createInitScriptForNetworkShare /var/lib/output
+createInitScriptForNetworkShare /var/lib/outputfsx
+createInitScriptForNetworkShare /var/lib/ftfsx
 
 info "$0: Restarting autofs"
 service autofs restart
