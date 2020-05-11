@@ -35,7 +35,7 @@ echo
 
 #Adding container logging locations (CMT-1910)
 echo "Adding container logs locations"
-for s in restapi wires-mis staging-mis wires-mfm staging-mfm rhelper preview webclient checkin formats mfm image datasource prodarch portalpub postprint eventhandler adorder mms mss msis outputmanager
+for s in restapi wires-mis staging-mis wires-mfm staging-mfm rhelper preview webclient checkin formats mfm image datasource prodarch portalpub postprint eventhandler adorder mms mss msis outputmanager claro
 do
   mkdir -v /var/log/apps/methode-$s
   chown -v tomcat. /var/log/apps/methode-$s
@@ -72,9 +72,11 @@ aws s3 cp s3://cms-tech-s3/ECS-bootstrap/functions.sh ./
 aws s3 cp s3://cms-tech-s3/ECS-bootstrap/nameservers.sh ./
 . ./nameservers.sh
 
-#Configure autofs for NFS shares
-aws s3 cp s3://cms-tech-s3/ECS-bootstrap/eomfs.sh ./
-. ./eomfs.sh
+if [[ "${ENV}" != "int" ]]; then # EOMFS decommissioned in INT so no point of adding this
+	#Configure autofs for NFS shares
+	aws s3 cp s3://cms-tech-s3/ECS-bootstrap/eomfs.sh ./
+	. ./eomfs.sh
+fi
 
 #Configure autofs for Samba
 aws s3 cp s3://cms-tech-s3/ECS-bootstrap/nasfs12.sh ./
