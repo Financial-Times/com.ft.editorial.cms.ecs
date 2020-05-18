@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   Internal application load balancer for Methode Servlets
-  Template updated: 28.4.2020, adding Claro endpoint
+  Template updated: 14.5.2020, adding Claro endpoint
 Parameters:
   SecurityGroupIds:
     Type: CommaDelimitedList
@@ -707,6 +707,7 @@ Resources:
       - Field: path-pattern
         Values:
         - "/claro*"
+        - "/jclaro*"
       ListenerArn:
         Ref: ListenerHTTP
       Priority: 170      
