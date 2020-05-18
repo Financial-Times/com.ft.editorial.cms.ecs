@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   Internal application load balancer for Methode Servlets
-  Template updated: 14.5.2020, adding Claro endpoint
+  Template updated: 18.5.2020, adding host header routing for Claro
 Parameters:
   SecurityGroupIds:
     Type: CommaDelimitedList
@@ -704,10 +704,11 @@ Resources:
         TargetGroupArn:
           Ref: TargetGroupClaro
       Conditions:
-      - Field: path-pattern
+      - Field: host-header
         Values:
-        - "/claro*"
-        - "/jclaro*"
+        - claro.int.in.ft.com
+        - claro.test.in.ft.com
+        - claro.prod.in.ft.com
       ListenerArn:
         Ref: ListenerHTTP
       Priority: 170      
