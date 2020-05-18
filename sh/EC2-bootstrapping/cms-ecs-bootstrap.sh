@@ -72,27 +72,27 @@ aws s3 cp s3://cms-tech-s3/ECS-bootstrap/functions.sh ./
 aws s3 cp s3://cms-tech-s3/ECS-bootstrap/nameservers.sh ./
 . ./nameservers.sh
 
-if [[ "${ENV}" != "int" ]]; then # EOMFS decommissioned in INT so no point of adding this
+if [[ "${ENV}" != "int" ]]; then # EOMFS decommissioned in INT so no point of adding any of config in INT
 	#Configure autofs for NFS shares
 	aws s3 cp s3://cms-tech-s3/ECS-bootstrap/eomfs.sh ./
 	. ./eomfs.sh
+	
+	#CMT-2375 - Add local dir and cron job for lookup.xml file
+	mkdir -v /var/lib/eomfs/CCMS
+	(crontab -l ; echo "*/10 * * * * /usr/bin/rsync -achv --timeout=2 /var/lib/eomfs/staging/CCMS/lookup.xml /var/lib/eomfs/CCMS/") | crontab -
+
+	aws s3 cp s3://cms-tech-s3/ECS-bootstrap/network-share-revival.sh ./
+	(crontab -l ; echo "*/2 * * * * bash /network-share-revival.sh") | crontab -
 fi
 
 #Configure autofs for Samba
 aws s3 cp s3://cms-tech-s3/ECS-bootstrap/nasfs12.sh ./
 . ./nasfs12.sh
 
-aws s3 cp s3://cms-tech-s3/ECS-bootstrap/network-share-revival.sh ./
-(crontab -l ; echo "*/2 * * * * bash /network-share-revival.sh") | crontab -
-
 #Download docker-kill.sh script
 aws s3 cp s3://cms-tech-s3/ECS-bootstrap/docker-kill.sh ./
 
 echo
-
-#CMT-2375 - Add local dir and cron job for lookup.xml file
-mkdir -v /var/lib/eomfs/CCMS
-(crontab -l ; echo "*/10 * * * * /usr/bin/rsync -achv --timeout=2 /var/lib/eomfs/staging/CCMS/lookup.xml /var/lib/eomfs/CCMS/") | crontab -
 
 #Mounting CMS EFS
 IP_ADDR=$(/usr/bin/curl -sS http://169.254.169.254/latest/meta-data/local-ipv4)
