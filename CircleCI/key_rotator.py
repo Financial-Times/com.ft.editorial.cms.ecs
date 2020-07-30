@@ -5,7 +5,7 @@
 #    Project Settings -> Permissions -> API Permissions -> Create Token -> Add an API token: All -> Add Token
 #
 # 2. Add API token to CredStash table cms-methode-credential-store with key CircleCI.<projectname>.apikey
-#    EXAMPLE: credstash -t cms-methode-credential-store put -a CircleCI.com.ft.editorial.cms.servlets.mms.apikey 123asd567qwe
+#    EXAMPLE: credstash -r eu-west-1 -t cms-methode-credential-store put -a CircleCI.com.ft.editorial.cms.servlets.mms.apikey 123asd567qwe
 #
 # 3. Prepare runtime environment
 #
