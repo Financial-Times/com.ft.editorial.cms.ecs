@@ -1,0 +1,200 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  ALB with Okta integration
+Parameters:
+  ALBScheme:
+    Type: String
+    Description: Select internal or internet-facing ALB
+    Default: internet-facing
+  ALBcertificate:
+    Type: String
+    Description: > 
+      SSL Certificate ARN of *.in.ft.com
+    Default: arn:aws:acm:eu-west-1:027104099916:certificate/80503b72-fa05-41ab-8662-eef1ea64027f
+  SecurityGroupIds:
+    Type: CommaDelimitedList
+    Description: Security group(s) for the load balancer
+    Default: sg-1beb8b7e, sg-1dec8c78
+  SubnetIds:
+    Type: CommaDelimitedList
+    Description: Subnets to attach load balancer
+    Default: subnet-11b0e257, subnet-8f6805ea, subnet-c86755bc
+  VpcId:
+    Type: String
+    Description: vpc-f3534591 = infra-prod
+    Default: vpc-f3534591
+  OktaEnvironment:
+    Type: String
+    Description: Select which okta environment you want the application load balancer to integrate with.
+    Default: FtProd
+  TagDescription:
+    Description: Tag detail for the Description
+    Type: String
+    Default: Load balancer for Blogs Okta integration
+  TagTeamDL:
+    Description: Tag detail for the TeamDL
+    ConstraintDescription: There must be a valid email address for the TeamDL Topic
+    Type: String
+    AllowedPattern: ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+    Default: team.cms@ft.com
+  TagSystemCode:
+      Description: SystemCode
+      Type: String
+      Default: blogs
+  TagEnvironment:
+    Description: Tag detail for the Environment
+    Type: String
+    Default: p
+
+  OktaOauthScopes:
+    Type: String
+    Description: Select OAuth scopes
+    Default: openid profile offline_access
+  OktaEnvironment:
+    Type: String
+    Description: Select which okta environment you want the application load balancer to integrate with.
+    Default: FtProd
+
+  OktaSecretsManagerSecretName:
+    Type: String
+    Description: Specify the name of the secrets manager secret  that holds the client id and client secret keys.
+    Default: blogs-ft-com-okta
+
+  OktaSecretsManagerClientIDSecretKey:
+    Type: String
+    Description: Specify the name of the secrets manager secret key that holds the client id value.
+    Default: client_id
+
+  OktaSecretsManagerClientSecretSecretKey:
+    Type: String
+    Description: Specify the name of the secrets manager secret key that holds the client secret value.
+    Default: client_secret
+
+  OktaBypassHeaderName:
+    Type: String
+    Description: Specify the name of the secrets manager secret key that holds the Okta bypass HTTP header name.
+    Default: okta_bypass_header_name
+  OktaBypassHeaderValue:
+    Type: String
+    Description: Specify the name of the secrets manager secret key that holds the Okta bypass HTTP header value.
+    Default: okta_bypass_header_value
+Mappings:
+  EnvMap:
+    p:
+      env: "prod"
+  Okta:
+    Issuer:
+      FtProd: https://ft.okta.com/oauth2/aus1kd9vpcssdNhdH357
+
+Resources:
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+     Name: !Sub "${AWS::StackName}"
+     Type: application
+     Scheme: !Ref ALBScheme
+     Subnets: !Ref SubnetIds
+     SecurityGroups: !Ref SecurityGroupIds
+     Tags:
+       -
+         Key: Name
+         Value: !Sub "${AWS::StackName}"
+       -
+         Key: Description
+         Value:
+           Ref: TagDescription
+       -
+         Key: environment
+         Value:
+           Ref: TagEnvironment
+       - Key: teamDL
+         Value:
+           Ref: TagTeamDL
+       - Key: systemCode
+         Value:
+           Ref: TagSystemCode
+  TargetGroupBlogs:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+     Name: !Sub
+      - Blogs-${Env}
+      - { Env: !FindInMap [ EnvMap, !Ref TagEnvironment, env ] }
+     Port: 80
+     Protocol: HTTP
+     HealthCheckPath: /__gtg/
+     HealthCheckProtocol: HTTP
+     HealthCheckIntervalSeconds: 10
+     HealthCheckTimeoutSeconds: 5
+     HealthyThresholdCount: 2
+     UnhealthyThresholdCount: 2
+     Matcher:
+       HttpCode: '200'
+     TargetGroupAttributes:
+     - Key: deregistration_delay.timeout_seconds
+       Value: '10'
+     - Key: stickiness.enabled
+       Value: true
+     VpcId: !Ref VpcId
+  ListenerRuleBlogsBypass:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroupBlogs
+          Order: 1
+      Conditions:
+      - Field: host-header
+        Values: 
+        - blogs.ft.com
+      - Field: http-header
+        HttpHeaderConfig:
+          HttpHeaderName: !Join ["", ['{{resolve:secretsmanager:', !Ref OktaSecretsManagerSecretName, ':SecretString:', !Ref OktaBypassHeaderName, '}}']]
+          Values: 
+          - !Join ["", ['{{resolve:secretsmanager:', !Ref OktaSecretsManagerSecretName, ':SecretString:', !Ref OktaBypassHeaderValue, '}}']]
+      ListenerArn:
+        Ref: ListenerHTTPS
+      Priority: 12          
+  ListenerHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn:
+        Ref: ApplicationLoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref ALBcertificate
+      DefaultActions:
+        - Type: authenticate-oidc
+          AuthenticateOidcConfig:
+            AuthorizationEndpoint: !Join ["", [!FindInMap ["Okta", "Issuer", !Ref OktaEnvironment], /v1/authorize]]
+            ClientId: !Join ["", ['{{resolve:secretsmanager:', !Ref OktaSecretsManagerSecretName, ':SecretString:', !Ref OktaSecretsManagerClientIDSecretKey, '}}']]
+            ClientSecret: !Join ["", ['{{resolve:secretsmanager:', !Ref OktaSecretsManagerSecretName, ':SecretString:', !Ref OktaSecretsManagerClientSecretSecretKey, '}}']]
+            Issuer: !FindInMap ["Okta", "Issuer", !Ref OktaEnvironment]
+            OnUnauthenticatedRequest: authenticate
+            Scope: !Ref OktaOauthScopes
+            SessionCookieName: AWSELBAuthSessionCookie
+            SessionTimeout: 43200
+            TokenEndpoint: !Join ["", [!FindInMap ["Okta", "Issuer", !Ref OktaEnvironment], /v1/token]]
+            UserInfoEndpoint: !Join ["", [!FindInMap ["Okta", "Issuer", !Ref OktaEnvironment], /v1/userinfo]]
+          Order: 1
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroupBlogs
+          Order: 2
+  ListenerHTTP:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - RedirectConfig:
+            Host: '#{host}'
+            Path: '/#{path}'
+            Port: '443'
+            Protocol: HTTPS
+            StatusCode: HTTP_302
+          Type: redirect
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP           
+Outputs:
+  LoadBalancerDNSName:
+    Description: Load Balancer DNS Name
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
