@@ -7,10 +7,10 @@ Parameters:
     Type: String
     Description: |
       Specifies the AMI ID for container instances.
-      amzn-ami-2018.03.20200623-amazon-ecs-optimized
-      eu-west-1: ami-0501b08c7280e37c5
+      amzn-ami-2018.03.20200813-amazon-ecs-optimized
+      eu-west-1: ami-0a1962f69fd0ec307
     AllowedValues:
-      - 'ami-0501b08c7280e37c5'
+      - 'ami-0a1962f69fd0ec307'
   EcsInstanceType:
     Type: CommaDelimitedList
     Description: >
@@ -21,7 +21,8 @@ Parameters:
       - t3.small    #$0.0228 per Hour
       - t3.medium   #$0.0456 per Hour
       - t3.large    #$0.0912 per Hour
-      - r5.large    #$0.107 per Hour
+      - m5.large    #8GB General purpose, $0.107 per Hour
+      - r5.large    #16GB RAM, $0.107 per Hour
   SubnetType:
     Type: String
     Description: Select type of subnet to deploy to

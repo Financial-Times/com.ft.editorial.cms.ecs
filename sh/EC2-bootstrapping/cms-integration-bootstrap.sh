@@ -23,6 +23,9 @@ case $1 in
 		;;
 esac
 
+#Add app specific log directories
+mkdir -p /var/log/apps/claro /var/log/apps/reuters /var/log/apps/ap
+
 #Adding logging drivers to ECS config (CMT-1949)
 echo "Adding logging drivers to ECS config"
 echo 'ECS_AVAILABLE_LOGGING_DRIVERS= ["json-file","awslogs","splunk"]' >> /etc/ecs/ecs.config

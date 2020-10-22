@@ -135,35 +135,10 @@ Resources:
      - Key: stickiness.enabled
        Value: true
      VpcId: !Ref VpcId
-  ListenerRuleBlogsBypass:
+  ListenerRuleBlogs:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
       Actions:
-        - Type: forward
-          TargetGroupArn: !Ref TargetGroupBlogs
-          Order: 1
-      Conditions:
-      - Field: host-header
-        Values: 
-        - blogs.ft.com
-      - Field: http-header
-        HttpHeaderConfig:
-          HttpHeaderName: !Join ["", ['{{resolve:secretsmanager:', !Ref OktaSecretsManagerSecretName, ':SecretString:', !Ref OktaBypassHeaderName, '}}']]
-          Values: 
-          - !Join ["", ['{{resolve:secretsmanager:', !Ref OktaSecretsManagerSecretName, ':SecretString:', !Ref OktaBypassHeaderValue, '}}']]
-      ListenerArn:
-        Ref: ListenerHTTPS
-      Priority: 12          
-  ListenerHTTPS:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn:
-        Ref: ApplicationLoadBalancer
-      Port: 443
-      Protocol: HTTPS
-      Certificates:
-        - CertificateArn: !Ref ALBcertificate
-      DefaultActions:
         - Type: authenticate-oidc
           AuthenticateOidcConfig:
             AuthorizationEndpoint: !Join ["", [!FindInMap ["Okta", "Issuer", !Ref OktaEnvironment], /v1/authorize]]
@@ -180,6 +155,28 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref TargetGroupBlogs
           Order: 2
+      Conditions:
+      - Field: path-pattern
+        PathPatternConfig:
+          Values: 
+          - "/*/wp-admin*"
+          - "/*/wp-login*"
+      ListenerArn:
+        Ref: ListenerHTTPS
+      Priority: 16         
+  ListenerHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn:
+        Ref: ApplicationLoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref ALBcertificate
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroupBlogs
+          Order: 1
   ListenerHTTP:
     Type: "AWS::ElasticLoadBalancingV2::Listener"
     Properties:
