@@ -113,29 +113,7 @@ Resources:
        - Key: systemCode
          Value:
            Ref: TagSystemCode
-  TargetGroupBlogs:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-     Name: !Sub
-      - Blogs-${Env}
-      - { Env: !FindInMap [ EnvMap, !Ref TagEnvironment, env ] }
-     Port: 80
-     Protocol: HTTP
-     HealthCheckPath: /__gtg/
-     HealthCheckProtocol: HTTP
-     HealthCheckIntervalSeconds: 10
-     HealthCheckTimeoutSeconds: 5
-     HealthyThresholdCount: 2
-     UnhealthyThresholdCount: 2
-     Matcher:
-       HttpCode: '200'
-     TargetGroupAttributes:
-     - Key: deregistration_delay.timeout_seconds
-       Value: '10'
-     - Key: stickiness.enabled
-       Value: true
-     VpcId: !Ref VpcId
-  ListenerRuleBlogs:
+  ListenerRuleOkta:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
       Actions:
@@ -159,11 +137,35 @@ Resources:
       - Field: path-pattern
         PathPatternConfig:
           Values: 
+          - "/wp-admin*"
+          - "/wp-login*"
           - "/*/wp-admin*"
           - "/*/wp-login*"
       ListenerArn:
         Ref: ListenerHTTPS
-      Priority: 16         
+      Priority: 16          
+  TargetGroupBlogs:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+     Name: !Sub
+      - Blogs-${Env}
+      - { Env: !FindInMap [ EnvMap, !Ref TagEnvironment, env ] }
+     Port: 80
+     Protocol: HTTP
+     HealthCheckPath: /__gtg/
+     HealthCheckProtocol: HTTP
+     HealthCheckIntervalSeconds: 10
+     HealthCheckTimeoutSeconds: 5
+     HealthyThresholdCount: 2
+     UnhealthyThresholdCount: 2
+     Matcher:
+       HttpCode: '200'
+     TargetGroupAttributes:
+     - Key: deregistration_delay.timeout_seconds
+       Value: '10'
+     - Key: stickiness.enabled
+       Value: true
+     VpcId: !Ref VpcId      
   ListenerHTTPS:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -172,7 +174,7 @@ Resources:
       Port: 443
       Protocol: HTTPS
       Certificates:
-        - CertificateArn: !Ref ALBcertificate
+        - CertificateArn: arn:aws:acm:eu-west-1:027104099916:certificate/80503b72-fa05-41ab-8662-eef1ea64027f
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref TargetGroupBlogs
