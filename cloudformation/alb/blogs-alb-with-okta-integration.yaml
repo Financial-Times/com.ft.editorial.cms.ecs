@@ -137,8 +137,6 @@ Resources:
       - Field: path-pattern
         PathPatternConfig:
           Values: 
-          - "/wp-admin*"
-          - "/wp-login*"
           - "/*/wp-admin*"
           - "/*/wp-login*"
       ListenerArn:
