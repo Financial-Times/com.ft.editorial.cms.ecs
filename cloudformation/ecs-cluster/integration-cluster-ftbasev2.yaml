@@ -1,0 +1,202 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Integration Cluster based on Amazon Linux 2 and ftbase v2
+  Template updated: 24.11.2020
+Parameters:
+  EcsAmiId:
+    Type: String
+    Description: |
+      Specifies the AMI ID for container instances.
+      amzn2-ami-ecs-hvm-2.0.20201028-x86_64-ebs
+      eu-west-1: ami-0c9ef930279337028
+    AllowedValues:
+      - 'ami-0c9ef930279337028'
+  EcsInstanceType:
+    Type: CommaDelimitedList
+    Description: >
+      Specifies the EC2 instance type for your container instances.
+      Defaults to t3.medium
+    Default: t3.medium
+    AllowedValues:
+      - t3.small    #$0.0228 per Hour
+      - t3.medium   #$0.0456 per Hour
+      - t3.large    #$0.0912 per Hour
+      - m5.large    #8GB General purpose, $0.107 per Hour
+      - r5.large    #16GB RAM, $0.107 per Hour
+  SubnetType:
+    Type: String
+    Description: Select type of subnet to deploy to
+    Default: Private
+    AllowedValues:
+      - Private
+      - Public
+  KeyName:
+    Type: String
+    Description: >
+      Optional - Specifies the name of an existing Amazon EC2 key pair
+      to enable SSH access to the EC2 instances in your cluster.
+    Default: team-cms-ec2-ft-tech-editorial-prod
+  VpcId:
+    Type: String
+    Description: >
+      Optional - Specifies the ID of an existing VPC in which to launch
+      your container instances. If you specify a VPC ID, you must specify a list of
+      existing subnets in that VPC. If you do not specify a VPC ID, a new VPC is created
+      with atleast 1 subnet.
+    Default: vpc-729f2815
+    AllowedPattern: "^(?:vpc-[0-9a-f]{8}|)$"
+    ConstraintDescription: >
+      VPC Id must begin with 'vpc-' or leave blank to have a
+      new VPC created
+  Sudo:
+    Description: Sudo Group to be applied by default
+    Type: String
+    Default: eng
+  AsgMaxSize:
+    Type: Number
+    Description: >
+      Specifies the maximum number of instances to scale up in cluster.
+      Defaults to 2.
+    Default: '2'
+  AsgDesiredSize:
+    Type: Number
+    Description: >
+      Specifies the number of instances to launch and register to the cluster.
+      Defaults to 2.
+    Default: '2'
+  IamRoleInstanceProfile:
+    Type: String
+    Description: >
+      Specifies the Name or the Amazon Resource Name (ARN) of the instance
+      profile associated with the IAM role for the instance
+    Default: arn:aws:iam::307921801440:instance-profile/FT-EC2-Role
+  TagDescription:
+    Description: Tag detail for the Description
+    Type: String
+    Default: Editorial Container Service cluster
+  TagEnvironment:
+    Description: Tag detail for the Environment
+    Type: String
+    Default: d
+    AllowedValues:
+      - 'd'
+      - 't'
+      - 'p'
+  TagTeamDL:
+    Description: Tag detail for the TeamDL
+    ConstraintDescription: There must be a valid email address for the TeamDL Topic
+    Type: String
+    AllowedPattern: ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+    Default: team.cms@ft.com
+  TagSystemCode:
+      Description: SystemCode
+      Type: String
+      Default: methode
+
+Mappings:
+  SecurityGroupMap:
+    Ids:
+      "default": "sg-e1875c99"
+      "resources": "sg-15be656d"
+      "private": "sg-98ba61e0"
+  SubnetMap:
+    Public:
+      "a": "subnet-cbbc0d82"
+      "b": "subnet-3f3fcb64"
+      "c": "subnet-a467cfc3"
+    Private:
+      "a": "subnet-48bd0c01"
+      "b": "subnet-0839cd53"
+      "c": "subnet-e378d084"
+  PublicIPMap:
+    Public:
+      "bool": true
+    Private:
+      "bool": false
+
+Resources:
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub "${AWS::StackName}"
+  EcsInstanceLc:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref EcsAmiId
+      InstanceType: !Select [ 0, !Ref EcsInstanceType ]
+      AssociatePublicIpAddress: !FindInMap [PublicIPMap, !Ref SubnetType, bool]
+      IamInstanceProfile: !Ref IamRoleInstanceProfile
+      KeyName: !Ref KeyName
+      SecurityGroups:
+        - !FindInMap [SecurityGroupMap, Ids, default]
+        - !FindInMap [SecurityGroupMap, Ids, resources]
+      BlockDeviceMappings:
+        - DeviceName: "/dev/xvda"
+          Ebs:
+            VolumeType: "gp2"
+            DeleteOnTermination: "true"
+            VolumeSize: "30"
+      UserData:
+        Fn::Base64: !Sub |
+         #!/bin/bash
+         echo ECS_CLUSTER=${AWS::StackName} >> /etc/ecs/ecs.config
+         export PATH=/usr/local/bin:$PATH
+         yum -y install jq nfs-utils autofs tcpdump cifs-utils lsof aws-cli rsync
+         #pip install --upgrade awscli 
+         aws configure set default.region ${AWS::Region}
+         # Get bootstrap.sh
+         /usr/bin/aws s3 cp s3://amazon-ftbase/amazon-ftbase2/releases/bootstrap.sh /
+         # Ready to run bootstrap.sh
+         bash /bootstrap.sh -s ${Sudo} -e ${TagEnvironment}
+         # Upgrade latest packages
+         yum upgrade -y
+         # CMS ECS customisation
+         #aws s3 cp s3://cms-tech-s3/ECS-bootstrap/cms-integration-bootstrap.sh ./
+         #chmod 755 ./cms-integration-bootstrap.sh && ./cms-integration-bootstrap.sh ${TagEnvironment}
+         # Bounce Instance
+         init 6
+  EcsInstanceAsg:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: ECSCluster
+    Properties:
+      VPCZoneIdentifier:
+        - !FindInMap [SubnetMap, !Ref SubnetType, a]
+        - !FindInMap [SubnetMap, !Ref SubnetType, b]
+        - !FindInMap [SubnetMap, !Ref SubnetType, c]
+      LaunchConfigurationName: !Ref EcsInstanceLc
+      MinSize: 1
+      MaxSize: !Ref AsgMaxSize
+      DesiredCapacity: !Ref AsgDesiredSize
+      MetricsCollection:
+      -
+        Granularity: "1Minute"
+      Tags:
+        -
+          Key: Name
+          Value: !Sub "ECS Instance - ${AWS::StackName}"
+          PropagateAtLaunch: 'true'
+        -
+          Key: Description
+          PropagateAtLaunch: 'true'
+          Value:
+            Ref: TagDescription
+        -
+          Key: environment
+          PropagateAtLaunch: 'true'
+          Value:
+            Ref: TagEnvironment
+        - Key: teamDL
+          PropagateAtLaunch: 'true'
+          Value:
+            Ref: TagTeamDL
+        - Key: systemCode
+          PropagateAtLaunch: 'true'
+          Value:
+            Ref: TagSystemCode
+Outputs:
+  EcsInstanceAsgName:
+    Description: Auto Scaling Group Name for ECS Instances
+    Value: !Ref EcsInstanceAsg
+  UsedByECSCreateCluster:
+    Description: Flag used by EC2 Container Service Create Cluster Wizard
+    Value: 'true'
