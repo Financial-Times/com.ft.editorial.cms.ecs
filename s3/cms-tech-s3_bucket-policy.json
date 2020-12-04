@@ -34,7 +34,10 @@
         {
             "Effect": "Allow",
             "Principal": {
-                "AWS": "arn:aws:iam::307921801440:role/FTApplicationRoleForECSInstanceRole"
+                "AWS":  [
+                    "arn:aws:iam::307921801440:role/FTApplicationRoleForECSInstanceRole",
+                    "arn:aws:iam::307921801440:role/FT-EC2-ECS-InstanceProfile"
+                ]
             },
             "Action": [
                 "s3:GetObject",
@@ -46,7 +49,10 @@
         {
             "Effect": "Allow",
             "Principal": {
-                "AWS": "arn:aws:iam::307921801440:role/FTApplicationRoleForECSInstanceRole"
+                "AWS":  [
+                    "arn:aws:iam::307921801440:role/FTApplicationRoleForECSInstanceRole",
+                    "arn:aws:iam::307921801440:role/FT-EC2-ECS-InstanceProfile"
+                ]
             },
             "Action": [
                 "s3:GetBucketLocation",
