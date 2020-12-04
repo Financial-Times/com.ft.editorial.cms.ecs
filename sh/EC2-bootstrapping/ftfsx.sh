@@ -52,5 +52,8 @@ addCron /var/lib/ftfsx
 
 createInitScriptForNetworkShare /var/lib/ftfsx
 
+info "$0: Enabling autofs to start automatically"
+systemctl enable autofs
+
 info "$0: Restarting autofs"
 service autofs restart
