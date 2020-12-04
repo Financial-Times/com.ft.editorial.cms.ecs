@@ -1,16 +1,16 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   Integration Cluster based on Amazon Linux 2 and ftbase v2
-  Template updated: 24.11.2020
+  Template updated: 26.11.2020
 Parameters:
   EcsAmiId:
     Type: String
     Description: |
       Specifies the AMI ID for container instances.
-      amzn2-ami-ecs-hvm-2.0.20201028-x86_64-ebs
-      eu-west-1: ami-0c9ef930279337028
+      amzn2-ami-ecs-hvm-2.0.20201130-x86_64-ebs
+      eu-west-1: ami-0383e6ac19943cf6a
     AllowedValues:
-      - 'ami-0c9ef930279337028'
+      - 'ami-0383e6ac19943cf6a'
   EcsInstanceType:
     Type: CommaDelimitedList
     Description: >
@@ -69,7 +69,7 @@ Parameters:
     Description: >
       Specifies the Name or the Amazon Resource Name (ARN) of the instance
       profile associated with the IAM role for the instance
-    Default: arn:aws:iam::307921801440:instance-profile/FT-EC2-Role
+    Default: arn:aws:iam::307921801440:instance-profile/aws-composer-custom-ecs-global-FTApplicationRoleForECSInstanceRoleV2-ECSInstanceProfile-1DXVT82A33P1D
   TagDescription:
     Description: Tag detail for the Description
     Type: String
@@ -151,8 +151,8 @@ Resources:
          # Upgrade latest packages
          yum upgrade -y
          # CMS ECS customisation
-         #aws s3 cp s3://cms-tech-s3/ECS-bootstrap/cms-integration-bootstrap.sh ./
-         #chmod 755 ./cms-integration-bootstrap.sh && ./cms-integration-bootstrap.sh ${TagEnvironment}
+         aws s3 cp s3://cms-tech-s3/ECS-bootstrap/cms-integration-bootstrap.sh ./
+         chmod 755 ./cms-integration-bootstrap.sh && ./cms-integration-bootstrap.sh ${TagEnvironment}
          # Bounce Instance
          init 6
   EcsInstanceAsg:
