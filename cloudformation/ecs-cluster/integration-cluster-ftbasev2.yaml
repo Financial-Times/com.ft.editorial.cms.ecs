@@ -69,7 +69,8 @@ Parameters:
     Description: >
       Specifies the Name or the Amazon Resource Name (ARN) of the instance
       profile associated with the IAM role for the instance
-    Default: arn:aws:iam::307921801440:instance-profile/aws-composer-custom-ecs-global-FTApplicationRoleForECSInstanceRoleV2-ECSInstanceProfile-1DXVT82A33P1D
+    AllowedValues:
+      - 'arn:aws:iam::307921801440:instance-profile/aws-composer-custom-ecs-global-FTApplicationRoleForECSInstanceRoleV2-ECSInstanceProfile-1DXVT82A33P1D'
   TagDescription:
     Description: Tag detail for the Description
     Type: String
