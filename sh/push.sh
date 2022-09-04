@@ -41,12 +41,11 @@ echo "Set AWS region"
 aws configure set default.region ${ARGS[--aws_region]}
 
 echo "Login to ECR"
-# $(aws ecr get-login-password)
-$(aws ecr get-login --no-include-email)
+$(aws ecr get-login-password)
 
 echo "Verify repository exists"
 aws ecr describe-repositories --repository-names ${ARGS[--image_name]}} &>/dev/null || \
-aws ecr create-repository --repository-name ${ARGS[--image_name]}
+# aws ecr create-repository --repository-name ${ARGS[--image_name]}
 
 echo "Tag image"
 docker tag ${ARGS[--image_name]}:${ARGS[--image_version]} \
