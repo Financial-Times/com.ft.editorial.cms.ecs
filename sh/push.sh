@@ -49,7 +49,7 @@ aws ecr describe-repositories --repository-names ${ARGS[--image_name]}} &>/dev/n
 aws ecr create-repository --repository-name ${ARGS[--image_name]}
 
 echo "Tag image"
-docker tag ${ARGS[--ecr_endpoint]}/${ARGS[--image_name]}:${ARGS[--image_version]} \
+docker tag ${ARGS[--image_name]}:${ARGS[--image_version]} \
   ${ARGS[--ecr_endpoint]}/${ARGS[--image_name]}:${ARGS[--image_version]}
 docker tag ${ARGS[--ecr_endpoint]}/${ARGS[--image_name]}:${ARGS[--image_version]} \
   ${ARGS[--ecr_endpoint]}/${ARGS[--image_name]}:latest
