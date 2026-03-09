@@ -121,7 +121,7 @@ Resources:
       Port: 443
       Protocol: HTTPS
       Certificates:
-        - CertificateArn: arn:aws:acm:eu-west-1:307921801440:certificate/00b98d3d-2c61-4a52-a28c-5bbb79c04011
+        - CertificateArn: arn:aws:acm:eu-west-1:307921801440:certificate/24f4f6a8-6a56-48ad-82be-de69b0221ae3
   ListenerRuleAdOrder:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
